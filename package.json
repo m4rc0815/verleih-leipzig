@@ -9,7 +9,7 @@
     "build": "node build.mjs",
     "preview": "node build.mjs && npx --yes serve docs -l 4174",
     "serve": "npx --yes serve docs -l 4174",
-    "test": "node --test test/",
+    "test": "node --test",
     "deploy": "bash deploy.sh"
   },
   "dependencies": {
