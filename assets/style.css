@@ -425,6 +425,12 @@ a { color: inherit; }
 .f-kat:hover { border-color: var(--accent); }
 .f-kat.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
 .f-suche { flex: 1 1 200px; min-width: 160px; padding: .5rem .85rem; border: 1px solid var(--line); border-radius: var(--radius-pill); font: inherit; }
+#f-sort {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: var(--radius-pill); padding: .42rem .95rem; font: inherit; font-size: .88rem;
+  cursor: pointer;
+}
+#f-sort:hover { border-color: var(--accent); }
 .f-zaehler { font-size: .85rem; color: var(--ink-soft); margin: .3rem 0 0; }
 
 /* --- Galerie der Detailseite ---------------------------------------------- */

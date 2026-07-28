@@ -140,10 +140,13 @@ export function kachel(a, relRoot = "") {
 </a>`;
 }
 
-// Preis als Zahl fuer die Sortierung; "VB" und Leerwerte hinten einsortieren.
+// Preis als Zahl fuer die Sortierung. "VB" und Leerwerte bekommen bewusst
+// KEINE Ersatzzahl: eine grosse Ersatzzahl wuerde sie beim absteigenden
+// Sortieren nach vorne holen. Der leere Wert sagt filter.js "kein Preis" —
+// diese Angebote stehen dann in beiden Richtungen hinten.
 export function preisZahl(preis) {
   const m = String(preis || "").match(/(\d+)/);
-  return m ? m[1] : "99999";
+  return m ? m[1] : "";
 }
 
 // ---------------------------------------------------------------------------

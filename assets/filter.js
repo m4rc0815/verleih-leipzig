@@ -26,8 +26,15 @@
     karten
       .slice()
       .sort(function (a, b) {
-        if (art === "preis-auf") return parseInt(a.dataset.preis, 10) - parseInt(b.dataset.preis, 10);
-        if (art === "preis-ab") return parseInt(b.dataset.preis, 10) - parseInt(a.dataset.preis, 10);
+        if (art === "preis-auf" || art === "preis-ab") {
+          // Angebote ohne Preis ("VB") haben einen leeren Wert und stehen
+          // immer hinten — auch beim absteigenden Sortieren.
+          var pa = a.dataset.preis, pb = b.dataset.preis;
+          if (!pa || !pb) return !pa && !pb ? 0 : (pa ? -1 : 1);
+          return art === "preis-auf"
+            ? parseInt(pa, 10) - parseInt(pb, 10)
+            : parseInt(pb, 10) - parseInt(pa, 10);
+        }
         return a.dataset.titel.localeCompare(b.dataset.titel, "de");
       })
       .forEach(function (k) { grid.appendChild(k); });
