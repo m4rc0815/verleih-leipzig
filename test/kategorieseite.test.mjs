@@ -1,6 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { kategorieSeite, kategorieBand, kategoriePfad, detailSeite } from "../templates/layout.mjs";
+import {
+  kategorieSeite,
+  kategorieBand,
+  kategoriePfad,
+  detailSeite,
+  startSeite,
+  documentShell,
+} from "../templates/layout.mjs";
 
 const ANZEIGEN = [
   { slug: "a-1", titel: "Zapfanlage", kategorie: "Party & Feiern", preis: "40 €", beschreibung: "Kalt.", bilder: ["b_01.jpg"], url: "https://example.org/1" },
@@ -12,6 +19,8 @@ const KONFIG = {
   KATEGORIE_MOTIVE: {},
   KATEGORIE_TEXTE: { "Party & Feiern": "Alles für die Feier." },
   KONTAKT: { telefon: "0176 55180756", zeiten: "Mo–So", plzOrt: "04275 Leipzig" },
+  ZUSAGEN: [{ icon: "lieferung", titel: "Lieferservice", text: "Ich bringe alles vorbei." }],
+  ROBERT: { name: "Robert Kipf", initialen: "RK", bild: "", absaetze: ["Text."] },
 };
 
 test("die Kategorieseite zeigt nur die Angebote ihrer Kategorie", () => {
@@ -59,9 +68,38 @@ test("die Kategorie-Kacheln sind Links auf die jeweilige Seite", () => {
   assert.doesNotMatch(html, /<button[^>]*kat-kachel/, "keine Knoepfe mehr");
 });
 
+test("oben steht eine Umschaltreihe zu allen Kategorien", () => {
+  const s = kategorieSeite("Party & Feiern", ANZEIGEN, KONFIG, "../../");
+  // Die eigene Kategorie ist markiert und nicht verlinkt, die anderen sind Links.
+  assert.match(s.content, /<span class="kat-pille is-active"[^>]*>Party &amp; Feiern<\/span>/);
+  assert.match(s.content, /<a class="kat-pille" href="\.\.\/\.\.\/k\/umzug-transport\/index\.html">/);
+  assert.match(s.content, /kat-alle" href="\.\.\/\.\.\/index\.html#angebote">Alle</);
+});
+
+test("die Startseite hat einen Alle-Knopf, der anfangs gilt", () => {
+  const s = kategorieSeite("Party & Feiern", ANZEIGEN, KONFIG, "../../");
+  assert.doesNotMatch(s.content, /class="f-kat f-alle/, "auf der Kategorieseite filtert nichts");
+  // Auf der Startseite dagegen schon — dort ist "Alle" der Ausgangszustand.
+  const start = startSeite(ANZEIGEN, KONFIG);
+  assert.match(start.content, /class="f-kat f-alle is-active" data-kategorie=""/);
+  const knopfReihe = start.content.match(/<div class="f-kat-reihe">(.*?)<\/div>/s)[1];
+  assert.ok(
+    knopfReihe.lastIndexOf("Alle") > knopfReihe.lastIndexOf("Foto"),
+    "Alle steht am Ende der Reihe"
+  );
+});
+
 test("der Pfad zur Kategorie beruecksichtigt die Verzeichnistiefe", () => {
   assert.equal(kategoriePfad("Party & Feiern", ""), "k/party-feiern/index.html");
   assert.equal(kategoriePfad("Party & Feiern", "../../"), "../../k/party-feiern/index.html");
+});
+
+test("das Klappmenue startet geschlossen, auch auf einer Kategorieseite", () => {
+  // Mit dem open-Attribut stand es dort dauerhaft aufgeklappt im Bild.
+  const html = documentShell({ title: "T", active: "kategorien", aktiveKategorie: "Party & Feiern" });
+  assert.match(html, /<details class="nav-kat">/);
+  assert.doesNotMatch(html, /<details[^>]* open/);
+  assert.match(html, /assets\/nav\.js/, "das Skript zum Schliessen wird geladen");
 });
 
 test("die Brotkrumen der Detailseite verlinken die Kategorie", () => {

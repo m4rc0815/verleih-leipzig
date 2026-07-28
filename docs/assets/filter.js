@@ -56,12 +56,13 @@
     if (leer) leer.hidden = sichtbar !== 0;
   }
 
+  // Ein Klick setzt die Kategorie, "Alle" (leerer Wert) hebt sie auf. Frueher
+  // musste man den gewaehlten Knopf ein zweites Mal treffen — das fand niemand.
   knoepfe.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var wert = btn.dataset.kategorie || "";
-      aktiveKategorie = aktiveKategorie === wert ? "" : wert; // nochmal klicken hebt auf
+      aktiveKategorie = btn.dataset.kategorie || "";
       knoepfe.forEach(function (b) {
-        b.classList.toggle("is-active", aktiveKategorie !== "" && b.dataset.kategorie === aktiveKategorie);
+        b.classList.toggle("is-active", (b.dataset.kategorie || "") === aktiveKategorie);
       });
       anwenden();
     });

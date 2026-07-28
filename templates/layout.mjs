@@ -50,7 +50,10 @@ function nav(relRoot, active, aktiveKategorie = "") {
 
   return (
     punkt(NAV[0]) +
-    `<details class="nav-kat"${active === "kategorien" ? " open" : ""}>
+    // Bewusst ohne "open": auf einer Kategorieseite stand das Menue sonst
+    // dauerhaft aufgeklappt da. nav.js schliesst es nach Auswahl, bei Klick
+    // daneben und bei Escape.
+    `<details class="nav-kat">
       <summary${active === "kategorien" ? ' class="is-active"' : ""}>Kategorien</summary>
       <div class="nav-kat-liste">${katLinks(relRoot, aktiveKategorie)}</div>
     </details>` +
@@ -130,6 +133,7 @@ ${content}
   </div>
 </footer>
 ${handyBalken(balkenExtra)}
+<script src="${relRoot}assets/nav.js"></script>
 ${(scripts || []).map((s) => `<script src="${relRoot}${s}"></script>`).join("\n")}
 </body>
 </html>`;
@@ -324,14 +328,15 @@ export function kontaktBand(kontakt = {}) {
 // Suche, Kategorieknoepfe und Sortierung. Auf einer Kategorieseite entfallen
 // die Knoepfe — man ist bereits in der Kategorie.
 function filterleiste(mitKategorien = true) {
+  // "Alle" steht am Ende der Reihe und hebt den Filter auf. Ohne diesen Knopf
+  // muesste man den gewaehlten noch einmal treffen, um wieder alles zu sehen —
+  // das ahnt niemand.
+  const knoepfe = KATEGORIEN.map(
+    (k) => `<button type="button" class="f-kat" data-kategorie="${esc(k)}">${esc(k)}</button>`
+  ).concat(`<button type="button" class="f-kat f-alle is-active" data-kategorie="">Alle</button>`);
+
   return `<div class="filterleiste">
-  ${
-    mitKategorien
-      ? `<div class="f-kat-reihe">${KATEGORIEN.map(
-          (k) => `<button type="button" class="f-kat" data-kategorie="${esc(k)}">${esc(k)}</button>`
-        ).join("")}</div>`
-      : ""
-  }
+  ${mitKategorien ? `<div class="f-kat-reihe">${knoepfe.join("")}</div>` : ""}
   <div class="f-zeile">
     <input type="search" id="f-suche" class="f-suche js-suche" placeholder="Suchen…" aria-label="Angebote durchsuchen">
     <select id="f-sort" aria-label="Sortierung">
@@ -402,8 +407,21 @@ export function kategorieSeite(kat, alleAnzeigen, konfig, relRoot = "../../") {
   </div>
 </section>`;
 
+  // Umschaltreihe: von hier aus ist jede andere Kategorie einen Klick weit weg,
+  // ohne den Umweg ueber die Startseite. Die eigene Kategorie steht markiert
+  // dabei, damit man sieht, wo man ist; "Alle" fuehrt zum ganzen Bestand.
+  const wechsel = `<nav class="kat-wechsel" aria-label="Kategorie wechseln">
+    ${KATEGORIEN.map((k) =>
+      k === kat
+        ? `<span class="kat-pille is-active" aria-current="page">${esc(k)}</span>`
+        : `<a class="kat-pille" href="${kategoriePfad(k, relRoot)}">${esc(k)}</a>`
+    ).join("")}
+    <a class="kat-pille kat-alle" href="${relRoot}index.html#angebote">Alle</a>
+  </nav>`;
+
   const liste = `<section class="section" id="angebote">
   <div class="container">
+    ${wechsel}
     ${filterleiste(false)}
     ${angebotsGitter(treffer, relRoot)}
   </div>

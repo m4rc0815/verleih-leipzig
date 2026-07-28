@@ -433,13 +433,19 @@ a { color: inherit; }
 
 /* --- Filterleiste --------------------------------------------------------- */
 .filterleiste { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 1.2rem 0 .4rem; }
-.f-kat {
+.f-kat, .kat-pille {
+  display: inline-block;
   border: 1px solid var(--line); background: var(--card); color: var(--ink);
   border-radius: var(--radius-pill); padding: .42rem .95rem; font: inherit; font-size: .88rem;
-  cursor: pointer; transition: background .12s ease, border-color .12s ease;
+  cursor: pointer; text-decoration: none;
+  transition: background .12s ease, border-color .12s ease;
 }
-.f-kat:hover { border-color: var(--accent); }
-.f-kat.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.f-kat:hover, .kat-pille:hover { border-color: var(--accent); }
+.f-kat.is-active, .kat-pille.is-active { background: var(--accent); border-color: var(--accent); color: #fff; cursor: default; }
+
+/* Umschaltreihe oben auf den Kategorieseiten. */
+.kat-wechsel { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.2rem; }
+.kat-alle, .f-alle { border-style: dashed; }
 .f-suche { flex: 1 1 200px; min-width: 160px; padding: .5rem .85rem; border: 1px solid var(--line); border-radius: var(--radius-pill); font: inherit; }
 #f-sort {
   border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -551,7 +557,10 @@ a { color: inherit; }
 .nav-kat-liste a { white-space: nowrap; }
 
 /* === Kategorieseite ======================================================= */
-.hero-kat { padding-bottom: clamp(1.4rem, 3vw, 2rem); }
+.hero-kat { padding-bottom: clamp(1.2rem, 2vw, 1.6rem); }
+/* Auf der Kategorieseite folgt die Umschaltreihe direkt auf den Kopf; der
+   uebliche Abschnittsabstand riss dort ein Loch von gut 130 px. */
+.hero-kat + .section { padding-top: 1rem; }
 .hero-kat .brotkrumen { margin-top: 0; }
 .hero-kat .hero-meta { margin-bottom: .8rem; }
 
@@ -662,7 +671,15 @@ a { color: inherit; }
   }
   .f-kat-reihe::-webkit-scrollbar { display: none; }
   /* min-height 44: kleinere Flaechen trifft man mit dem Daumen nicht zuverlaessig. */
-  .f-kat { flex: none; min-height: 44px; padding: .5rem 1rem; }
+  .f-kat, .kat-pille { flex: none; min-height: 44px; padding: .5rem 1rem; display: inline-flex; align-items: center; }
+
+  /* Umschaltreihe wie die Filterknoepfe: eine wischbare Zeile statt Umbruch. */
+  .kat-wechsel {
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin: 0 calc(clamp(1.1rem, 4vw, 2rem) * -1) 1rem;
+    padding: 0 clamp(1.1rem, 4vw, 2rem);
+  }
+  .kat-wechsel::-webkit-scrollbar { display: none; }
   .f-zeile {
     display: flex; gap: .45rem; align-items: center;
     position: sticky; top: 68px; z-index: 40;
