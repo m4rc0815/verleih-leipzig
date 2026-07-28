@@ -10,9 +10,20 @@ import { webcrypto as wc, createHash } from "node:crypto";
 
 const encoder = new TextEncoder();
 
-// Schlüssel aus Passwort + Salt ableiten (PBKDF2-SHA256). Spiegelbild der
-// gleichnamigen Funktion in assets/crypt.js (Browser).
-export async function deriveKey(password, saltB64, iterations) {
+// Verbindet Benutzername und Passwort zu einem Geheimnis, aus dem der Schluessel
+// abgeleitet wird. Der Zeilenumbruch als Trenner ist notwendig: ohne ihn ergaeben
+// ("ab","cd") und ("a","bcd") denselben Schluessel.
+//
+// Der Benutzername wird normalisiert (getrimmt, kleingeschrieben), damit
+// "Robert" und " robert " denselben Zugang oeffnen. Das Passwort bleibt
+// buchstabengetreu — dort ist jede Abweichung beabsichtigt.
+export function zugangsGeheimnis(benutzer, passwort) {
+  return `${String(benutzer || "").trim().toLowerCase()}\n${String(passwort || "")}`;
+}
+
+// Schlüssel aus Zugangsgeheimnis + Salt ableiten (PBKDF2-SHA256). Spiegelbild
+// der gleichnamigen Funktion in assets/crypt.js (Browser).
+export async function deriveKey(password, saltB64, iterations, usages = ["encrypt"]) {
   const salt = Buffer.from(saltB64, "base64");
   const baseKey = await wc.subtle.importKey(
     "raw",
@@ -26,7 +37,7 @@ export async function deriveKey(password, saltB64, iterations) {
     baseKey,
     { name: "AES-GCM", length: 256 },
     false,
-    ["encrypt"]
+    usages
   );
 }
 
@@ -67,7 +78,7 @@ export function gatePage({ relRoot = "", salt, iterations, iv, ct }) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Geschützt · Finanzanalysen</title>
+<title>Geschützt</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -77,10 +88,12 @@ export function gatePage({ relRoot = "", salt, iterations, iv, ct }) {
 <main class="gate-card" id="gate">
   <div class="gate-lock" aria-hidden="true">🔒</div>
   <h1 class="gate-title">Geschützter Bereich</h1>
-  <p class="gate-sub">Diese Finanzanalysen sind privat. Bitte gib das Passwort ein.</p>
+  <p class="gate-sub">Diese Seite ist noch im Aufbau. Bitte melde dich an.</p>
   <form id="gate-form" autocomplete="off">
+    <input type="text" id="gate-user" class="gate-input" placeholder="Benutzername"
+           autocomplete="username" aria-label="Benutzername" autofocus>
     <input type="password" id="gate-pw" class="gate-input" placeholder="Passwort"
-           autocomplete="current-password" aria-label="Passwort" autofocus>
+           autocomplete="current-password" aria-label="Passwort">
     <label class="gate-remember"><input type="checkbox" id="gate-remember" checked> angemeldet bleiben</label>
     <button type="submit" class="gate-btn" id="gate-btn">Entsperren</button>
   </form>
