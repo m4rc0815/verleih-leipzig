@@ -407,10 +407,22 @@ a { color: inherit; }
   transition: transform .15s ease, box-shadow .15s ease;
 }
 .angebot-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-.angebot-bild { aspect-ratio: 1; background: #f2f2ef; display: grid; place-items: center; }
-.angebot-bild img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.angebot-bild {
+  aspect-ratio: 1;
+  /* min-height/flex-shrink sind nötig, weil Flex-Elemente sonst nicht unter ihre
+     Inhaltshöhe schrumpfen: Hochformat-Bilder würden das Seitenverhältnis
+     überstimmen, die Kachel in die Länge ziehen und unter die Schrift laufen. */
+  min-height: 0;
+  flex-shrink: 0;
+  background: #f2f2ef;
+  display: grid; place-items: center;
+  overflow: hidden;
+}
+/* Oben ausrichten statt zentrieren — bei Hochformat wird unten abgeschnitten,
+   dafür sitzt der Gegenstand immer im sichtbaren Teil der Kachel. */
+.angebot-bild img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .angebot-kein-bild { font-size: 2.5rem; opacity: .35; }
-.angebot-text { padding: .8rem .9rem 1rem; display: flex; flex-direction: column; gap: .3rem; }
+.angebot-text { padding: .8rem .9rem 1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1 1 auto; background: var(--card); }
 .angebot-kategorie { font-size: .72rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .angebot-titel { font-size: .95rem; line-height: 1.3; margin: 0; font-weight: 600; }
 .angebot-preis { font-weight: 700; font-size: 1.05rem; margin-top: auto; }
