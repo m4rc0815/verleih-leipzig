@@ -119,10 +119,19 @@ for (const a of anzeigen) {
 // Fehlende Angaben werden als deutlicher Hinweis dargestellt statt still
 // weggelassen — sonst faellt vor dem Oeffentlichgehen niemandem auf, dass sie fehlen.
 const k = cfg.KONTAKT;
-const fehlt = (wert, was) =>
-  String(wert || "").trim()
-    ? `<p>${wert}</p>`
-    : `<div class="fehlt-hinweis"><strong>Fehlt noch:</strong> ${was} — einzutragen in <code>config.mjs</code> unter <code>KONTAKT</code>.</div>`;
+const fehltHinweis = (was) =>
+  `<div class="fehlt-hinweis"><strong>Fehlt noch:</strong> ${was} — einzutragen in <code>config.mjs</code> unter <code>KONTAKT</code>.</div>`;
+const fehlt = (wert, was) => (String(wert || "").trim() ? `<p>${wert}</p>` : fehltHinweis(was));
+
+// Telefon und E-Mail als anklickbare Links: auf dem Handy startet das direkt den
+// Anruf bzw. die Mail. Fuer tel: wird die fuehrende 0 durch +49 ersetzt, sonst
+// scheitert die Wahl aus dem Ausland.
+const telefonZeile = (nr, was) =>
+  String(nr || "").trim()
+    ? `<p><a href="tel:${String(nr).replace(/\D/g, "").replace(/^0/, "+49")}">${nr}</a></p>`
+    : fehltHinweis(was);
+const mailZeile = (adr, was) =>
+  String(adr || "").trim() ? `<p><a href="mailto:${adr}">${adr}</a></p>` : fehltHinweis(was);
 
 schreibeSeite(
   path.join(DOCS, "kontakt.html"),
@@ -133,12 +142,15 @@ schreibeSeite(
     content: `<div class="container prose">
       <h1>Kontakt</h1>
       <p><strong>${k.name}</strong></p>
-      ${fehlt(k.telefon, "Telefonnummer")}
-      ${fehlt(k.email, "E-Mail-Adresse")}
-      <p>Geöffnet täglich von 7 bis 23 Uhr — auch sonntags und feiertags.</p>
+      ${telefonZeile(k.telefon, "Telefonnummer")}
+      ${mailZeile(k.email, "E-Mail-Adresse")}
+      ${fehlt(k.strasse, "Straße und Hausnummer")}
+      ${fehlt(k.plzOrt, "Postleitzahl und Ort")}
+      <h2>Erreichbarkeit</h2>
+      <p>${k.zeiten || "Mo–So 7:00–23:00 Uhr"} — auch sonntags und feiertags.</p>
       ${
         cfg.ANZEIGEN_LINK.enabled
-          ? `<p>Anfragen laufen derzeit über die jeweilige Anzeige. Auf jeder Angebotsseite findest du dafür einen Knopf.</p>`
+          ? `<p>Anfragen laufen derzeit auch über die jeweilige Anzeige. Auf jeder Angebotsseite findest du dafür einen Knopf.</p>`
           : ""
       }
     </div>`,
@@ -158,8 +170,8 @@ schreibeSeite(
       ${fehlt(k.strasse, "Straße und Hausnummer")}
       ${fehlt(k.plzOrt, "Postleitzahl und Ort")}
       <h2>Kontakt</h2>
-      ${fehlt(k.telefon, "Telefonnummer")}
-      ${fehlt(k.email, "E-Mail-Adresse")}
+      ${telefonZeile(k.telefon, "Telefonnummer")}
+      ${mailZeile(k.email, "E-Mail-Adresse")}
       <h2>Umsatzsteuer-Identifikationsnummer</h2>
       ${fehlt(k.ustId, "USt-IdNr. (entfällt bei Kleinunternehmerregelung — dann hier vermerken)")}
       <h2>Verantwortlich für den Inhalt</h2>

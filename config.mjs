@@ -38,11 +38,12 @@ export const ANZEIGEN_LINK = {
 // Felder noch leer sind — eine gewerbliche Seite ohne Impressum darf nicht online.
 export const KONTAKT = {
   name: "Robert Kipf",
-  strasse: "",
-  plzOrt: "",
-  telefon: "",
-  email: "",
-  ustId: "",
+  strasse: "Fichtestr. 29",
+  plzOrt: "04275 Leipzig",
+  telefon: "0176 55180756",
+  email: "robertkipf@gmx.de",
+  ustId: "DE409684617",
+  zeiten: "Mo–So 7:00–23:00 Uhr",
 };
 
 export const BILDER = {
