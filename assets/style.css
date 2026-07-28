@@ -407,6 +407,10 @@ a { color: inherit; }
   transition: transform .15s ease, box-shadow .15s ease;
 }
 .angebot-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+/* Muss sein: "display: flex" oben ueberstimmt sonst das eingebaute
+   hidden-Verhalten des Browsers — die gefilterten Kacheln bekaemen zwar das
+   Attribut, blieben aber sichtbar. */
+.angebot-card[hidden] { display: none; }
 .angebot-bild {
   aspect-ratio: 1;
   /* min-height/flex-shrink sind nötig, weil Flex-Elemente sonst nicht unter ihre
