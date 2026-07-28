@@ -6,6 +6,9 @@
   "description": "Statische Verleih-Homepage (Party-, Umzugs- und Werkzeugvermietung Leipzig), gebaut aus Kleinanzeigen-Daten.",
   "scripts": {
     "sync": "node sync.mjs",
+    "pull": "node drive.mjs pull",
+    "push": "node drive.mjs push",
+    "drive-check": "node drive.mjs check",
     "build": "node build.mjs",
     "preview": "node build.mjs && npx --yes serve docs -l 4174",
     "serve": "npx --yes serve docs -l 4174",

@@ -7,7 +7,7 @@ import { webcrypto as wc } from "node:crypto";
 import * as cfg from "./config.mjs";
 import * as T from "./templates/layout.mjs";
 import { deriveKey, encryptPage, gatePage, zugangsGeheimnis } from "./crypt.mjs";
-import { erzeugeVarianten } from "./lib/bilder.mjs";
+import { erzeugeVarianten, istBild, webpName } from "./lib/bilder.mjs";
 import { findeBezuege } from "./lib/pruefliste.mjs";
 import { KATEGORIEN } from "./lib/kategorien.mjs";
 
@@ -40,6 +40,32 @@ if (!anzeigen.length) {
 fs.rmSync(DOCS, { recursive: true, force: true });
 fs.mkdirSync(DOCS, { recursive: true });
 
+// --- Bildliste: der Ordner ist die Wahrheit, nicht anzeigen.json -----------
+// Google Drive ist die fuehrende Ablage fuer die Bilder. Deshalb zaehlt, was
+// nach `npm run pull` tatsaechlich im Ordner liegt — ein dort geloeschtes Bild
+// verschwindet damit von der Seite, ein neu abgelegtes erscheint, ohne dass
+// jemand eine Liste pflegen muss. anzeigen.json liefert nur noch die Texte.
+function bilderImOrdner(slug) {
+  const ordner = path.join(__dirname, cfg.BILDER.ordner, slug);
+  if (!fs.existsSync(ordner)) return [];
+  return fs
+    .readdirSync(ordner)
+    .filter(istBild)
+    .sort((a, b) => a.localeCompare(b, "de", { numeric: true }));
+}
+
+const bildAenderungen = [];
+for (const a of anzeigen) {
+  const vorher = a.bilder || [];
+  const jetzt = bilderImOrdner(a.slug);
+  if (vorher.length !== jetzt.length) {
+    bildAenderungen.push({ titel: a.titel, vorher: vorher.length, jetzt: jetzt.length });
+  }
+  a.bilder = jetzt;
+}
+
+const ohneBild = anzeigen.filter((a) => !a.bilder.length);
+
 // --- Bilder: aus jedem Original die beiden WebP-Fassungen ------------------
 let bilderErzeugt = 0;
 let bytesGesamt = 0;
@@ -47,12 +73,7 @@ for (const a of anzeigen) {
   const quelle = path.join(__dirname, cfg.BILDER.ordner, a.slug);
   const ziel = path.join(DOCS, "bilder", a.slug);
   for (const b of a.bilder) {
-    const eingabe = path.join(quelle, b);
-    if (!fs.existsSync(eingabe)) {
-      console.warn(`  ! Bild fehlt: ${a.slug}/${b}`);
-      continue;
-    }
-    const { bytes } = await erzeugeVarianten(eingabe, ziel, b.replace(/\.jpg$/, ""));
+    const { bytes } = await erzeugeVarianten(path.join(quelle, b), ziel, webpName(b).replace(/\.webp$/, ""));
     bilderErzeugt++;
     bytesGesamt += bytes;
   }
@@ -304,6 +325,17 @@ console.log(`Kategorien        : ${Object.entries(kat).map(([k, n]) => `${k} ${n
 console.log(`Passwortschutz    : ${cfg.GATE.enabled ? `AN — ${verschluesselt} Seiten verschlüsselt` : "AUS — Seiten offen"}`);
 console.log(`Kleinanzeigen-Link: ${cfg.ANZEIGEN_LINK.enabled ? "AN" : "AUS"}`);
 console.log(`Prüfliste         : ${bezuege.length} Anzeigen mit Bezug → pruefliste.md`);
+if (bildAenderungen.length) {
+  console.log(`\nBildzahl gegenüber dem letzten Abruf geändert (Quelle: Ordner/Drive):`);
+  for (const b of bildAenderungen) {
+    const pfeil = b.jetzt > b.vorher ? "+" : "−";
+    console.log(`  ${pfeil} ${b.titel.slice(0, 50)}: ${b.vorher} → ${b.jetzt}`);
+  }
+}
+if (ohneBild.length) {
+  console.log(`\n⚠ ${ohneBild.length} Anzeige(n) ohne Bild — Kachel zeigt nur ein Symbol:`);
+  for (const a of ohneBild) console.log(`  · ${a.titel.slice(0, 60)}`);
+}
 if (!cfg.KONTAKT.telefon && !cfg.KONTAKT.email) {
   console.log(`\n⚠ Kontaktdaten fehlen noch (config.mjs → KONTAKT).`);
 }

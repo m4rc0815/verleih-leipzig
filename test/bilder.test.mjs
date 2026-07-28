@@ -4,7 +4,29 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import { erzeugeVarianten, GROESSEN } from "../lib/bilder.mjs";
+import { erzeugeVarianten, GROESSEN, webpName, istBild } from "../lib/bilder.mjs";
+
+test("bildet den WebP-Namen unabhaengig von der Endung", () => {
+  assert.equal(webpName("bild_01.jpg"), "bild_01.webp");
+  assert.equal(webpName("bild_01.jpg", true), "bild_01-k.webp");
+  assert.equal(webpName("Foto.JPEG"), "Foto.webp");
+  assert.equal(webpName("skizze.png", true), "skizze-k.webp");
+  assert.equal(webpName("IMG_4711.HEIC"), "IMG_4711.webp");
+});
+
+test("laesst Punkte im Dateinamen stehen", () => {
+  assert.equal(webpName("bierzelt.2er.set.jpg"), "bierzelt.2er.set.webp");
+});
+
+test("erkennt Bilddateien und ignoriert alles andere", () => {
+  assert.ok(istBild("bild_01.jpg"));
+  assert.ok(istBild("Foto.PNG"));
+  assert.ok(istBild("neu.heic"));
+  assert.equal(istBild("beschreibung.md"), false);
+  assert.equal(istBild(".DS_Store"), false);
+  assert.equal(istBild("Thumbs.db"), false);
+});
+
 
 async function testbild(breite, hoehe) {
   return sharp({

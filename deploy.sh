@@ -4,6 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+echo "→ Bilder aus Google Drive holen…"
+node drive.mjs pull
+
 echo "→ Build…"
 node build.mjs >/dev/null
 

@@ -1,6 +1,7 @@
 // HTML-Bausteine der Verleih-Homepage, im NotebookLM-inspirierten Stil der
 // Finanz-Webseite — gleiche Struktur, gruener Akzent, andere Inhalte.
 import * as cfg from "../config.mjs";
+import { webpName } from "../lib/bilder.mjs";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -120,7 +121,7 @@ export function simpleHero({ eyebrow, title, meta }) {
 // kleingeschrieben, damit filter.js nicht jedes Mal umwandeln muss.
 export function kachel(a, relRoot = "") {
   const bild = a.bilder.length
-    ? `${relRoot}bilder/${a.slug}/${a.bilder[0].replace(/\.jpg$/, "-k.webp")}`
+    ? `${relRoot}bilder/${a.slug}/${webpName(a.bilder[0], true)}`
     : "";
   const suchtext = `${a.titel} ${a.kategorie} ${a.beschreibung}`.toLowerCase();
   return `<a class="angebot-card" href="${relRoot}a/${a.slug}/index.html"
@@ -156,8 +157,8 @@ export function preisZahl(preis) {
 // Der Text wird unveraendert uebernommen — nur Zeilenumbrueche werden zu Absaetzen.
 export function detailSeite(a, relRoot = "../../", opt = {}) {
   const bilder = a.bilder.map((b) => ({
-    gross: `${relRoot}bilder/${a.slug}/${b.replace(/\.jpg$/, ".webp")}`,
-    klein: `${relRoot}bilder/${a.slug}/${b.replace(/\.jpg$/, "-k.webp")}`,
+    gross: `${relRoot}bilder/${a.slug}/${webpName(b)}`,
+    klein: `${relRoot}bilder/${a.slug}/${webpName(b, true)}`,
   }));
 
   const galerie = bilder.length
