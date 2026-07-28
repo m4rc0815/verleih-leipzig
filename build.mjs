@@ -115,6 +115,80 @@ for (const a of anzeigen) {
   );
 }
 
+// --- Kontakt, Impressum, Datenschutz --------------------------------------
+// Fehlende Angaben werden als deutlicher Hinweis dargestellt statt still
+// weggelassen — sonst faellt vor dem Oeffentlichgehen niemandem auf, dass sie fehlen.
+const k = cfg.KONTAKT;
+const fehlt = (wert, was) =>
+  String(wert || "").trim()
+    ? `<p>${wert}</p>`
+    : `<div class="fehlt-hinweis"><strong>Fehlt noch:</strong> ${was} — einzutragen in <code>config.mjs</code> unter <code>KONTAKT</code>.</div>`;
+
+schreibeSeite(
+  path.join(DOCS, "kontakt.html"),
+  T.documentShell({
+    title: `Kontakt — ${cfg.SITE.projectName}`,
+    relRoot: "",
+    active: "kontakt",
+    content: `<div class="container prose">
+      <h1>Kontakt</h1>
+      <p><strong>${k.name}</strong></p>
+      ${fehlt(k.telefon, "Telefonnummer")}
+      ${fehlt(k.email, "E-Mail-Adresse")}
+      <p>Geöffnet täglich von 7 bis 23 Uhr — auch sonntags und feiertags.</p>
+      ${
+        cfg.ANZEIGEN_LINK.enabled
+          ? `<p>Anfragen laufen derzeit über die jeweilige Anzeige. Auf jeder Angebotsseite findest du dafür einen Knopf.</p>`
+          : ""
+      }
+    </div>`,
+  })
+);
+
+schreibeSeite(
+  path.join(DOCS, "impressum.html"),
+  T.documentShell({
+    title: `Impressum — ${cfg.SITE.projectName}`,
+    relRoot: "",
+    active: "impressum",
+    content: `<div class="container prose">
+      <h1>Impressum</h1>
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <p><strong>${k.name}</strong></p>
+      ${fehlt(k.strasse, "Straße und Hausnummer")}
+      ${fehlt(k.plzOrt, "Postleitzahl und Ort")}
+      <h2>Kontakt</h2>
+      ${fehlt(k.telefon, "Telefonnummer")}
+      ${fehlt(k.email, "E-Mail-Adresse")}
+      <h2>Umsatzsteuer-Identifikationsnummer</h2>
+      ${fehlt(k.ustId, "USt-IdNr. (entfällt bei Kleinunternehmerregelung — dann hier vermerken)")}
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p>${k.name}${k.plzOrt ? `, ${k.plzOrt}` : ""}</p>
+    </div>`,
+  })
+);
+
+schreibeSeite(
+  path.join(DOCS, "datenschutz.html"),
+  T.documentShell({
+    title: `Datenschutz — ${cfg.SITE.projectName}`,
+    relRoot: "",
+    active: "impressum",
+    content: `<div class="container prose">
+      <h1>Datenschutzerklärung</h1>
+      <div class="fehlt-hinweis"><strong>Noch zu prüfen:</strong> Diese Seite ist ein Entwurf und wurde nicht rechtlich geprüft. Vor dem Öffentlichgehen von jemandem mit Sachkenntnis durchsehen lassen.</div>
+      <h2>Hosting</h2>
+      <p>Diese Seite wird von GitHub Pages (GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA) ausgeliefert. Beim Aufruf überträgt dein Browser technisch notwendige Daten, darunter die IP-Adresse. GitHub speichert diese Zugriffsdaten in Server-Protokollen.</p>
+      <h2>Keine Cookies, keine Auswertung</h2>
+      <p>Diese Seite setzt keine Cookies, bindet keine externen Dienste zur Reichweitenmessung ein und speichert nichts über Besucher.</p>
+      <h2>Schriftarten</h2>
+      <p>Die Seite lädt Schriftarten von Google Fonts. Dabei wird deine IP-Adresse an Google übertragen.</p>
+      <h2>Deine Rechte</h2>
+      <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung deiner Daten sowie ein Beschwerderecht bei einer Aufsichtsbehörde. Wende dich dafür an die im <a href="impressum.html">Impressum</a> genannte Stelle.</p>
+    </div>`,
+  })
+);
+
 // --- Beiwerk ---------------------------------------------------------------
 const assetsOut = path.join(DOCS, "assets");
 fs.mkdirSync(assetsOut, { recursive: true });
@@ -210,7 +284,9 @@ const kat = {};
 for (const a of anzeigen) kat[a.kategorie] = (kat[a.kategorie] || 0) + 1;
 
 console.log("\n── Bau-Bericht ───────────────────────────");
-console.log(`Seiten            : ${seiten.length} (1 Start + ${anzeigen.length} Angebote)`);
+console.log(
+  `Seiten            : ${seiten.length} (1 Start + ${anzeigen.length} Angebote + Kontakt, Impressum, Datenschutz)`
+);
 console.log(`Bilder umgewandelt: ${bilderErzeugt} → ${(bytesGesamt / 1048576).toFixed(1)} MB WebP`);
 console.log(`Kategorien        : ${Object.entries(kat).map(([k, n]) => `${k} ${n}`).join(" · ")}`);
 console.log(`Passwortschutz    : ${cfg.GATE.enabled ? `AN — ${verschluesselt} Seiten verschlüsselt` : "AUS — Seiten offen"}`);
