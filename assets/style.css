@@ -486,6 +486,7 @@ a { color: inherit; }
 .kat-raster { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1.4rem; }
 .kat-kachel {
   display: flex; flex-direction: column; gap: .1rem;
+  text-decoration: none; /* die Kachel ist ein Link, soll aber wie eine Kachel wirken */
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 0 0 .9rem; cursor: pointer; font: inherit; text-align: left; color: inherit;
   overflow: hidden; transition: box-shadow .15s, transform .15s, border-color .15s;
@@ -523,6 +524,194 @@ a { color: inherit; }
   .robert-platzhalter, .robert-foto { width: 150px; height: 150px; }
   .robert-platzhalter { font-size: 3rem; }
 }
-@media (max-width: 600px) {
-  .zusagen-reihe { grid-template-columns: 1fr; }
+/* === Kategorien in der Kopfnavigation ===================================== */
+/* <details> statt Hover-Menue: klappt ohne JavaScript auf und funktioniert
+   auch auf Touch, wo es kein "hover" gibt. */
+.nav-kat { position: relative; }
+.nav-kat > summary {
+  list-style: none; cursor: pointer;
+  font: 600 .92rem "DM Sans", sans-serif; color: var(--ink-soft);
+  padding: .42rem .85rem; border-radius: var(--radius-pill);
+  transition: background .15s, color .15s;
+}
+.nav-kat > summary::-webkit-details-marker { display: none; }
+.nav-kat > summary::after { content: " ⌄"; opacity: .6; }
+.nav-kat > summary:hover { background: var(--yellow); color: var(--accent-dark); }
+.nav-kat > summary.is-active { background: var(--accent); color: #fff; }
+.nav-kat-liste {
+  position: absolute; top: calc(100% + .4rem); right: 0; z-index: 60;
+  display: flex; flex-direction: column; min-width: 220px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg); padding: .4rem;
+}
+.nav-kat-liste a { white-space: nowrap; }
+
+/* === Kategorieseite ======================================================= */
+.hero-kat { padding-bottom: clamp(1.4rem, 3vw, 2rem); }
+.hero-kat .brotkrumen { margin-top: 0; }
+.hero-kat .hero-meta { margin-bottom: .8rem; }
+
+/* Umschliessen die Kategorieknoepfe bzw. Suche und Sortierung. Auf breiten
+   Schirmen layoutneutral (display: contents), damit am Desktop alles bleibt
+   wie es war; auf schmalen werden daraus die wischbare Reihe und die
+   mitlaufende Zeile. */
+.f-kat-reihe, .f-zeile { display: contents; }
+
+/* Bausteine, die nur schmale Geraete sehen. */
+.nur-schmal, .handy-balken { display: none; }
+
+/* === Handy-Fassung (bis 700 px) ===========================================
+   Alles ab hier greift ausschliesslich auf schmalen Geraeten. Oberhalb von
+   700 px aendert keine dieser Regeln etwas — der Laptop bleibt unberuehrt.
+   700 px liegt ueber jedem Handy im Hochformat und unter jedem Tablet.
+
+   Ziel der Fassung: das erste Angebot nach gut einem Bildschirm statt nach
+   dreieinhalb. Gemessen vorher: erste Kachel bei 2.929 px (375 x 812).
+   ========================================================================= */
+@media (max-width: 700px) {
+  .nur-breit { display: none; }
+  .nur-schmal { display: block; }
+
+  /* --- Reihenfolge: die Vorstellung wandert unter die Angebote ------------
+     Nur die Anzeige wird umsortiert, im Markup bleibt alles an seinem Platz.
+     Ausdruecklich nur auf der Startseite: die Kategorieseiten haben denselben
+     Kategorie-Abschnitt ("Andere Kategorien") am Ende, der sonst vor die
+     Angebote rutschen wuerde. */
+  body.seite-start main { display: flex; flex-direction: column; }
+  body.seite-start main > .hero { order: 1; }
+  body.seite-start main > .zusagen-band { order: 2; }
+  body.seite-start main > .section-kat { order: 3; }
+  body.seite-start main > #angebote { order: 4; }
+  body.seite-start main > .robert-section { order: 5; }
+  body.seite-start main > .kontakt-band { order: 6; }
+
+  /* --- Kopfbereich: kompakter, dafuer sofort ein Suchfeld ---------------- */
+  .hero-home { padding-top: 1.7rem; padding-bottom: 1.3rem; }
+  .hero-home .eyebrow { font-size: .66rem; margin-bottom: .5rem; }
+  .hero-title-xl { font-size: 2.15rem; line-height: 1.04; margin-bottom: .6rem; }
+  .hero-lead { font-size: 1rem; margin-bottom: 1rem; }
+  .hero-suche { margin: 0 0 1rem; }
+  .hero-suche input {
+    width: 100%; font: inherit; font-size: 1rem; padding: .8rem 1.1rem;
+    border: 1px solid var(--line); border-radius: var(--radius-pill);
+    background: #fff; color: var(--ink);
+  }
+  .hero-suche input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .hero-actions { gap: .55rem; margin-bottom: 0; }
+  /* Die Nummer steht unten im festen Balken — hier waere sie doppelt. */
+  .hero-actions .btn-ghost { display: none; }
+
+  /* --- Zusagen: 2x2 nur mit Symbol und Stichwort ------------------------- */
+  .zusagen-band { padding: .9rem 0; }
+  .zusagen-reihe { grid-template-columns: 1fr 1fr; gap: .75rem 1rem; }
+  .zusage { gap: .5rem; align-items: center; }
+  .zusage-icon { width: 22px; height: 22px; }
+  .zusage strong { font-size: .88rem; line-height: 1.2; }
+  /* Nur der Erklaersatz verschwindet — das Symbol davor bleibt. */
+  .zusage > div > span { display: none; }
+
+  /* --- Kategorien: eine wischbare Reihe ---------------------------------- */
+  /* Die Reihe bricht bewusst aus dem Container aus, damit die naechste Kachel
+     angeschnitten am Rand steht — das zeigt, dass es seitlich weitergeht. */
+  /* Die Augenbrauen-Zeilen ("Wonach suchst du?", "Der ganze Bestand") kosten
+     je rund 25 px und sagen mobil nichts, was die Ueberschrift nicht schon
+     sagt. */
+  .section-kat .eyebrow, #angebote .eyebrow { display: none; }
+  .section-kat { padding: 1.2rem 0 1.3rem; }
+  .section-kat .band-title { font-size: 1.5rem; }
+  .kat-raster {
+    display: flex; gap: .7rem; margin-top: .9rem;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    margin-inline: calc(clamp(1.1rem, 4vw, 2rem) * -1);
+    padding: 0 clamp(1.1rem, 4vw, 2rem) .3rem;
+  }
+  .kat-raster::-webkit-scrollbar { display: none; }
+  .kat-kachel { flex: 0 0 58%; scroll-snap-align: start; }
+  .kat-bild { aspect-ratio: 16/10; }
+  .kat-name { font-size: .95rem; padding-top: .55rem; }
+
+  /* --- Angebote: Filterzeile laeuft mit ---------------------------------- */
+  /* display: contents hebt die Kinder der Filterleiste in den Container —
+     nur so klebt die Zeile ueber die ganze Liste statt nur ueber die paar
+     Pixel der Leiste selbst. */
+  #angebote { padding-top: 1.2rem; }
+  #angebote .band-title { font-size: 1.5rem; margin-bottom: .7rem; }
+
+  /* Titel auf zwei Zeilen begrenzen: die Kleinanzeigen-Titel sind bis zu
+     sechs Zeilen lang, dadurch waren die Kacheln unterschiedlich hoch und die
+     Liste doppelt so lang wie noetig. Der volle Titel steht auf der
+     Detailseite. */
+  .angebot-titel {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .angebot-text { padding: .6rem .7rem .8rem; gap: .2rem; }
+  .angebot-preis { font-size: 1rem; }
+  .angebot-kategorie { font-size: .66rem; }
+  .filterleiste { display: contents; }
+  .f-kat-reihe {
+    display: flex; gap: .4rem; margin: 0 0 .5rem;
+    overflow-x: auto; scrollbar-width: none;
+    margin-inline: calc(clamp(1.1rem, 4vw, 2rem) * -1);
+    padding: 0 clamp(1.1rem, 4vw, 2rem);
+  }
+  .f-kat-reihe::-webkit-scrollbar { display: none; }
+  /* min-height 44: kleinere Flaechen trifft man mit dem Daumen nicht zuverlaessig. */
+  .f-kat { flex: none; min-height: 44px; padding: .5rem 1rem; }
+  .f-zeile {
+    display: flex; gap: .45rem; align-items: center;
+    position: sticky; top: 68px; z-index: 40;
+    margin-inline: calc(clamp(1.1rem, 4vw, 2rem) * -1);
+    padding: .55rem clamp(1.1rem, 4vw, 2rem);
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .f-zeile .f-suche { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: .6rem .95rem; }
+  .f-zeile #f-sort { flex: none; max-width: 42%; min-height: 44px; }
+  .f-zaehler { margin: .45rem 0 .1rem; font-size: .8rem; }
+
+  /* --- Fester Balken mit Anruf (und Anfrage auf den Detailseiten) -------- */
+  .handy-balken {
+    display: flex; gap: .5rem;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 80;
+    padding: .5rem .8rem calc(.5rem + env(safe-area-inset-bottom, 0px));
+    background: rgba(250, 249, 246, .97); border-top: 1px solid var(--line);
+    backdrop-filter: saturate(180%) blur(10px);
+  }
+  .hb-knopf {
+    flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    min-height: 46px; padding: 0 1rem; border-radius: var(--radius-pill);
+    font: 600 .95rem "DM Sans", sans-serif; text-decoration: none; white-space: nowrap;
+  }
+  .hb-anruf { background: var(--accent); color: #fff; }
+  .hb-anfrage { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
+  .hb-icon { width: 17px; height: 17px; flex: none; }
+  .hb-icon svg { width: 100%; height: 100%; }
+  /* Platz, damit der Balken den Seitenfuss nicht verdeckt. */
+  body { padding-bottom: 62px; }
+
+  /* --- Kopfnavigation: Kategorien als eingerueckte Liste ----------------- */
+  .nav-kat > summary { padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); border-radius: 0; }
+  .nav-kat-liste {
+    position: static; border: 0; box-shadow: none; padding: 0;
+    background: var(--yellow); min-width: 0;
+  }
+  .nav-kat-liste a { padding-left: 2.2rem; }
+
+  /* --- Kategorieseiten ---------------------------------------------------- */
+  .hero-kat { padding-top: 1.4rem; }
+  .hero-kat .hero-title { font-size: 1.9rem; }
+  .hero-kat .hero-lead { margin-bottom: .4rem; }
+
+  /* --- Detailseiten: Buehne niedriger, Vorschau in einer Reihe ------------ */
+  .galerie-buehne img { max-height: 48vh; }
+  .galerie-reihe {
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin-inline: calc(clamp(1.1rem, 4vw, 2rem) * -1);
+    padding: 0 clamp(1.1rem, 4vw, 2rem);
+  }
+  .galerie-reihe::-webkit-scrollbar { display: none; }
+  .galerie-vorschau { flex: none; }
+  .angebot-detail h1 { font-size: 1.55rem; }
+  .angebot-fakten { margin-bottom: .9rem; }
 }

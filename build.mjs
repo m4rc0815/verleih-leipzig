@@ -9,6 +9,8 @@ import * as T from "./templates/layout.mjs";
 import { deriveKey, encryptPage, gatePage, zugangsGeheimnis } from "./crypt.mjs";
 import { erzeugeVarianten, istBild, webpName } from "./lib/bilder.mjs";
 import { findeBezuege } from "./lib/pruefliste.mjs";
+import { KATEGORIEN } from "./lib/kategorien.mjs";
+import { kategorieSlug } from "./lib/slug.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DOCS = path.join(__dirname, "docs");
@@ -93,11 +95,33 @@ schreibeSeite(
     title: `${cfg.SITE.projectName} — ${cfg.SITE.tagline}`,
     relRoot: "",
     active: "start",
+    // Die Handy-Fassung sortiert nur auf der Startseite um (Vorstellung unter
+    // die Angebote) — die Klasse grenzt das ab.
+    bodyClass: "seite-start",
     hero: start.hero,
     content: start.content,
     scripts: ["assets/filter.js"],
   })
 );
+
+// Kategorieseiten: eine je Kategorie, damit jede eine eigene Adresse hat und
+// der Bestand uebersichtlich bleibt, wenn er weiter waechst.
+for (const kat of KATEGORIEN) {
+  const seite = T.kategorieSeite(kat, anzeigen, cfg, "../../");
+  if (!seite.anzahl) continue; // leere Kategorie bekommt keine Seite
+  schreibeSeite(
+    path.join(DOCS, "k", kategorieSlug(kat), "index.html"),
+    T.documentShell({
+      title: `${kat} mieten in ${cfg.SITE.ort} — ${cfg.SITE.projectName}`,
+      relRoot: "../../",
+      active: "kategorien",
+      aktiveKategorie: kat,
+      hero: seite.hero,
+      content: seite.content,
+      scripts: ["assets/filter.js"],
+    })
+  );
+}
 
 // Detailseiten
 for (const a of anzeigen) {
@@ -107,10 +131,15 @@ for (const a of anzeigen) {
       title: `${a.titel} — ${cfg.SITE.projectName}`,
       relRoot: "../../",
       active: "start",
+      aktiveKategorie: a.kategorie,
       content: T.detailSeite(a, "../../", {
         anzeigenLink: cfg.ANZEIGEN_LINK.enabled,
         anzeigenLinkLabel: cfg.ANZEIGEN_LINK.label,
       }),
+      // Auf dem Handy steht die Anfrage neben dem Anruf im festen Balken.
+      balkenExtra: cfg.ANZEIGEN_LINK.enabled
+        ? `<a class="hb-knopf hb-anfrage" href="${a.url}" target="_blank" rel="noopener noreferrer">Anfragen</a>`
+        : "",
       scripts: ["assets/lightbox.js"],
     })
   );
@@ -297,8 +326,9 @@ const kat = {};
 for (const a of anzeigen) kat[a.kategorie] = (kat[a.kategorie] || 0) + 1;
 
 console.log("\n── Bau-Bericht ───────────────────────────");
+const katSeiten = KATEGORIEN.filter((k) => anzeigen.some((a) => a.kategorie === k)).length;
 console.log(
-  `Seiten            : ${seiten.length} (1 Start + ${anzeigen.length} Angebote + Kontakt, Impressum, Datenschutz)`
+  `Seiten            : ${seiten.length} (1 Start + ${katSeiten} Kategorien + ${anzeigen.length} Angebote + Kontakt, Impressum, Datenschutz)`
 );
 console.log(`Bilder umgewandelt: ${bilderErzeugt} → ${(bytesGesamt / 1048576).toFixed(1)} MB WebP`);
 console.log(`Kategorien        : ${Object.entries(kat).map(([k, n]) => `${k} ${n}`).join(" · ")}`);

@@ -79,6 +79,23 @@ export const ZUSAGEN = [
   { icon: "schild", titel: "Ohne Kaution", text: "Keine Hinterlegung, kein Papierkram vorab." },
 ];
 
+// --- Einleitungssaetze der Kategorieseiten ---------------------------------
+// Je ein Satz, abgeleitet aus den Anzeigentiteln dieser Kategorie — also
+// belegt, nicht erfunden. Robert liest gegen; Aendern ist hier eine Zeile.
+// Leer lassen = die Kategorieseite zeigt nur Name und Anzahl.
+export const KATEGORIE_TEXTE = {
+  "Party & Feiern":
+    "Zapfanlage, Bierzeltgarnituren, Musikboxen, Nebel- und Zuckerwattemaschine — alles, was eine Feier braucht, von der Hochzeit bis zum Geburtstag im Hof.",
+  "Umzug & Transport":
+    "Neue Umzugskartons in mehreren Größen, dazu Sackkarre, Treppensteiger und Transportwagen — geliefert und nach dem Umzug wieder abgeholt.",
+  "Spiel & Spaß":
+    "Hüpfburg mit TÜV, XXL-Jenga, 4-Gewinnt, Schwungtuch und SUP-Board — für Kindergeburtstage, Sommerfeste und den Tag am Wasser.",
+  "Werkzeug & Reinigung":
+    "Kärcher-Hochdruck- und Teppichreiniger, Bohrmaschine, Baustrahler und Linienlaser — Geräte, die man ein Wochenende braucht und nicht kaufen muss.",
+  "Foto & Technik":
+    "Beamer mit 100-Zoll-Leinwand, Sofortbildkameras und die PlayStation dazu — für Filmabend, Hochzeit oder Fotoecke auf der Feier.",
+};
+
 // --- Motive der Kategorie-Kacheln ------------------------------------------
 // Fest gewaehlt, damit dort nicht zufaellig ein Kartonstapel vor weisser Wand
 // landet. Fehlt ein Slug (Anzeige geloescht), nimmt der Bau das erste Bild der

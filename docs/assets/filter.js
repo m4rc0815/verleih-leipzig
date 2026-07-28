@@ -1,17 +1,30 @@
-// Filtern und Suchen auf der Startseite. Rein clientseitig, ohne Nachladen.
+// Filtern, Suchen und Sortieren der Angebotsliste. Rein clientseitig, ohne
+// Nachladen. Laeuft auf der Startseite (mit Kategorieknoepfen) und auf den
+// Kategorieseiten (ohne — dort ist die Kategorie durch die Seite gesetzt).
 (function () {
   var grid = document.getElementById("angebot-grid");
   if (!grid) return;
   var karten = Array.prototype.slice.call(grid.querySelectorAll(".angebot-card"));
-  var suche = document.getElementById("f-suche");
   var knoepfe = Array.prototype.slice.call(document.querySelectorAll(".f-kat"));
   var sortierung = document.getElementById("f-sort");
   var zaehler = document.getElementById("f-zaehler");
   var leer = document.getElementById("f-leer");
   var aktiveKategorie = "";
 
+  // Zwei Suchfelder: eines im Kopfbereich (nur auf schmalen Geraeten sichtbar),
+  // eines in der Filterleiste. Beide zeigen immer denselben Text und filtern
+  // dieselbe Liste — sonst wundert man sich, warum die Eingabe verschwindet.
+  var suchfelder = Array.prototype.slice.call(document.querySelectorAll(".js-suche"));
+
+  function suchbegriff() {
+    for (var i = 0; i < suchfelder.length; i++) {
+      if (suchfelder[i].value) return suchfelder[i].value.trim().toLowerCase();
+    }
+    return "";
+  }
+
   function anwenden() {
-    var q = ((suche && suche.value) || "").trim().toLowerCase();
+    var q = suchbegriff();
     var sichtbar = 0;
 
     karten.forEach(function (k) {
@@ -43,37 +56,26 @@
     if (leer) leer.hidden = sichtbar !== 0;
   }
 
-  // Die Kategorie-Kacheln weiter oben bedienen denselben Filter wie die Knoepfe.
-  var kacheln = Array.prototype.slice.call(document.querySelectorAll(".kat-kachel"));
-
-  function setzeKategorie(wert, springen) {
-    aktiveKategorie = aktiveKategorie === wert ? "" : wert; // nochmal klicken hebt auf
-    var aktiv = aktiveKategorie;
-    knoepfe.concat(kacheln).forEach(function (b) {
-      b.classList.toggle("is-active", aktiv !== "" && b.dataset.kategorie === aktiv);
-    });
-    anwenden();
-    // Nur von den Kacheln aus springen: wer unten schon bei der Liste steht,
-    // soll nicht bei jedem Filterklick weggescrollt werden.
-    if (springen) {
-      var ziel = document.getElementById("angebote");
-      if (ziel) ziel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }
-
   knoepfe.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      setzeKategorie(btn.dataset.kategorie || "", false);
+      var wert = btn.dataset.kategorie || "";
+      aktiveKategorie = aktiveKategorie === wert ? "" : wert; // nochmal klicken hebt auf
+      knoepfe.forEach(function (b) {
+        b.classList.toggle("is-active", aktiveKategorie !== "" && b.dataset.kategorie === aktiveKategorie);
+      });
+      anwenden();
     });
   });
 
-  kacheln.forEach(function (kachel) {
-    kachel.addEventListener("click", function () {
-      setzeKategorie(kachel.dataset.kategorie || "", true);
+  suchfelder.forEach(function (feld) {
+    feld.addEventListener("input", function () {
+      suchfelder.forEach(function (anderes) {
+        if (anderes !== feld) anderes.value = feld.value;
+      });
+      anwenden();
     });
   });
 
-  if (suche) suche.addEventListener("input", anwenden);
   if (sortierung) sortierung.addEventListener("change", anwenden);
   anwenden();
 })();

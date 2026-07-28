@@ -162,6 +162,25 @@ Im Einzelnen:
 
 ---
 
+## Abweichungen bei der Umsetzung
+
+Vier Entscheidungen sind beim Bauen anders ausgefallen als oben beschrieben:
+
+1. **Brotkrumen ohne Angebotstitel.** Geplant war `Start › Party & Feiern ›
+   Zapfanlage`. Die Anzeigentitel sind bis zu 60 Zeichen lang und stehen als
+   Überschrift ohnehin direkt darunter — die dritte Stufe hätte auf dem Handy
+   drei Zeilen gefüllt. Jetzt: `Start › Party & Feiern`, die Kategorie verlinkt.
+2. **Kacheltitel auf zwei Zeilen begrenzt** (nur unter 700 px, nicht geplant).
+   Ohne die Begrenzung waren die Kacheln zwischen 326 und 363 px hoch, das
+   Raster wirkte unruhig. Jetzt sind alle exakt 274 px hoch und die Liste ist
+   ein Fünftel kürzer. Der vollständige Titel steht auf der Detailseite.
+3. **Augenbrauen-Zeilen mobil ausgeblendet** („Wonach suchst du?", „Der ganze
+   Bestand"). Sie kosten je rund 25 px und sagen nichts, was die Überschrift
+   darunter nicht schon sagt.
+4. **Keine Kategorien im Seitenfuß.** Eine vierte Fußspalte hätte das
+   Desktop-Layout verändert — das war ausgeschlossen. Die Kategorien sind über
+   die Kopfnavigation und die Kacheln erreichbar.
+
 ## Offen
 
 - Die fünf Einleitungssätze braucht Robert zum Gegenlesen.

@@ -3,6 +3,7 @@
 import * as cfg from "../config.mjs";
 import { webpName } from "../lib/bilder.mjs";
 import { KATEGORIEN } from "../lib/kategorien.mjs";
+import { kategorieSlug } from "../lib/slug.mjs";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -30,7 +31,36 @@ const NAV = [
   { key: "impressum", label: "Impressum", href: (r) => `${r}impressum.html` },
 ];
 
-function nav(relRoot, active) {
+export function kategoriePfad(kat, relRoot = "") {
+  return `${relRoot}k/${kategorieSlug(kat)}/index.html`;
+}
+
+function katLinks(relRoot, aktiveKategorie) {
+  return KATEGORIEN.map(
+    (k) =>
+      `<a href="${kategoriePfad(k, relRoot)}"${k === aktiveKategorie ? ' class="is-active"' : ""}>${esc(k)}</a>`
+  ).join("");
+}
+
+// Kopfnavigation. Die Kategorien haengen als <details> darunter: das klappt
+// ohne JavaScript auf und funktioniert auf Touch, anders als ein Hover-Menue.
+function nav(relRoot, active, aktiveKategorie = "") {
+  const punkt = (n) =>
+    `<a href="${n.href(relRoot)}"${n.key === active ? ' class="is-active"' : ""}>${n.label}</a>`;
+
+  return (
+    punkt(NAV[0]) +
+    `<details class="nav-kat"${active === "kategorien" ? " open" : ""}>
+      <summary${active === "kategorien" ? ' class="is-active"' : ""}>Kategorien</summary>
+      <div class="nav-kat-liste">${katLinks(relRoot, aktiveKategorie)}</div>
+    </details>` +
+    NAV.slice(1).map(punkt).join("")
+  );
+}
+
+// Im Fuss stehen dieselben Ziele flach untereinander — dort waere ein
+// aufklappbares Menue nur im Weg.
+function fussNav(relRoot, active) {
   return NAV.map(
     (n) =>
       `<a href="${n.href(relRoot)}"${n.key === active ? ' class="is-active"' : ""}>${n.label}</a>`
@@ -55,6 +85,8 @@ export function documentShell({
   content = "",
   scripts = [],
   bodyClass = "",
+  aktiveKategorie = "",
+  balkenExtra = "",
 }) {
   return `<!doctype html>
 <html lang="de">
@@ -76,7 +108,7 @@ export function documentShell({
       <span class="wm-main">Verleih</span><span class="wm-accent">${esc(cfg.SITE.ort)}</span>
     </a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle-cb" hidden>
-    <nav class="main-nav" aria-label="Hauptnavigation">${nav(relRoot, active)}</nav>
+    <nav class="main-nav" aria-label="Hauptnavigation">${nav(relRoot, active, aktiveKategorie)}</nav>
     <label for="nav-toggle" class="nav-toggle" aria-label="Menü öffnen">☰</label>
   </div>
 </header>
@@ -90,13 +122,14 @@ ${content}
       <p class="wordmark wordmark-footer"><span class="wm-main">Verleih</span><span class="wm-accent">${esc(cfg.SITE.ort)}</span></p>
       <p class="footer-note">${esc(cfg.SITE.tagline)}</p>
     </div>
-    <nav class="footer-nav" aria-label="Footer">${nav(relRoot, active)}</nav>
+    <nav class="footer-nav" aria-label="Footer">${fussNav(relRoot, active)}</nav>
     <div class="footer-meta">
       <p>${esc(cfg.SITE.betreiber)} · ${esc(cfg.SITE.ort)}</p>
       <p><a href="${relRoot}datenschutz.html">Datenschutz</a></p>
     </div>
   </div>
 </footer>
+${handyBalken(balkenExtra)}
 ${(scripts || []).map((s) => `<script src="${relRoot}${s}"></script>`).join("\n")}
 </body>
 </html>`;
@@ -132,6 +165,7 @@ const ICONS = {
   beleg: `<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>`,
   kalender: `<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>`,
   schild: `<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>`,
+  telefon: `<path d="M5 3h4l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>`,
 };
 
 function symbol(name) {
@@ -139,12 +173,29 @@ function symbol(name) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${pfade}</svg>`;
 }
 
+// Fester Balken am unteren Rand, den nur schmale Geraete sehen — ab 701px
+// blendet ihn das CSS aus. Ein Verleih lebt vom Anruf; auf dem Handy soll der
+// nie weiter weg sein als ein Daumen. `extra` nimmt auf den Detailseiten den
+// Anfrage-Knopf auf.
+function handyBalken(extra = "") {
+  const tel = (cfg.KONTAKT || {}).telefon;
+  if (!tel) return "";
+  return `<div class="handy-balken">
+  <a class="hb-knopf hb-anruf" href="${telHref(tel)}"><span class="hb-icon">${symbol("telefon")}</span>${esc(tel)}</a>
+  ${extra}
+</div>`;
+}
+
 export function startHero(anzahl, kontakt = {}) {
   return `<section class="hero hero-home">
   <div class="container">
     <p class="eyebrow">${esc(cfg.SITE.projectName)} · seit Jahren im Süden der Stadt</p>
     <h1 class="hero-title hero-title-xl">Mieten statt kaufen.</h1>
-    <p class="hero-lead">${anzahl} Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution. Von einem Menschen aus Leipzig, nicht von einem Konzern.</p>
+    <p class="hero-lead nur-breit">${anzahl} Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution. Von einem Menschen aus Leipzig, nicht von einem Konzern.</p>
+    <p class="hero-lead nur-schmal">${anzahl} Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution.</p>
+    <div class="hero-suche nur-schmal">
+      <input type="search" id="f-suche-oben" class="js-suche" placeholder="Wonach suchst du?" aria-label="Angebote durchsuchen">
+    </div>
     <div class="hero-actions">
       <a class="btn" href="#angebote">${chev} Alle Angebote ansehen</a>
       ${kontakt.telefon ? `<a class="btn btn-ghost" href="${telHref(kontakt.telefon)}">${chev} ${esc(kontakt.telefon)}</a>` : ""}
@@ -169,16 +220,25 @@ export function zusagenBand(zusagen) {
 </section>`;
 }
 
-// Fuenf Einstiege nach Kategorie. Ein Klick filtert die Liste weiter unten —
-// keine eigene Unterseite, das nutzt die vorhandene Filterlogik.
+// Einstiege nach Kategorie. Jede Kachel fuehrt auf die eigene Seite der
+// Kategorie (/k/<slug>/) — frueher filterte sie nur die Liste darunter, was
+// keine verlinkbare Adresse ergab und mit wachsendem Bestand unuebersichtlich
+// wurde.
+//
+// opt.ausser laesst eine Kategorie weg (auf deren eigener Seite), opt.eyebrow
+// und opt.titel setzen die Ueberschriften.
 //
 // Liefert { html, fehlend }: fehlend nennt die Kategorien, deren konfiguriertes
 // Motiv nicht gefunden wurde, damit der Bau darauf hinweisen kann.
-export function kategorieBand(anzeigen, motive = {}, relRoot = "") {
+export function kategorieBand(anzeigen, motive = {}, relRoot = "", opt = {}) {
+  const ausser = opt.ausser || "";
+  const eyebrow = opt.eyebrow || "Wonach suchst du?";
+  const titel = opt.titel || "Alles für Feier, Umzug und Baustelle";
   const fehlend = [];
   const kacheln = [];
 
   for (const kat of KATEGORIEN) {
+    if (kat === ausser) continue;
     const treffer = anzeigen.filter((a) => a.kategorie === kat);
     if (!treffer.length) continue;
 
@@ -192,7 +252,7 @@ export function kategorieBand(anzeigen, motive = {}, relRoot = "") {
         ? `${relRoot}bilder/${motiv.slug}/${webpName(motiv.bilder[0], true)}`
         : "";
 
-    kacheln.push(`<button type="button" class="kat-kachel" data-kategorie="${esc(kat)}">
+    kacheln.push(`<a class="kat-kachel" href="${kategoriePfad(kat, relRoot)}">
     <span class="kat-bild">${
       bild
         ? `<img src="${esc(bild)}" alt="" loading="lazy" width="240" height="160">`
@@ -200,13 +260,13 @@ export function kategorieBand(anzeigen, motive = {}, relRoot = "") {
     }</span>
     <span class="kat-name">${esc(kat)}</span>
     <span class="kat-anzahl">${treffer.length} ${treffer.length === 1 ? "Angebot" : "Angebote"}</span>
-  </button>`);
+  </a>`);
   }
 
   const html = `<section class="section section-kat">
   <div class="container">
-    <p class="eyebrow">Wonach suchst du?</p>
-    <h2 class="band-title">Alles für Feier, Umzug und Baustelle</h2>
+    <p class="eyebrow">${esc(eyebrow)}</p>
+    <h2 class="band-title">${esc(titel)}</h2>
     <div class="kat-raster">
   ${kacheln.join("\n  ")}
     </div>
@@ -259,29 +319,45 @@ export function kontaktBand(kontakt = {}) {
 // eine Kopie statt des Originals.
 //
 // Liefert { hero, content, fehlendeMotive }.
-export function startSeite(anzeigen, konfig) {
-  const kategorien = kategorieBand(anzeigen, konfig.KATEGORIE_MOTIVE, "");
-
-  const filterleiste = `<div class="filterleiste">
-  ${KATEGORIEN.map((k) => `<button type="button" class="f-kat" data-kategorie="${esc(k)}">${esc(k)}</button>`).join("\n  ")}
-  <input type="search" id="f-suche" class="f-suche" placeholder="Suchen…" aria-label="Angebote durchsuchen">
-  <select id="f-sort" aria-label="Sortierung">
-    <option value="titel">A–Z</option>
-    <option value="preis-auf">Preis aufsteigend</option>
-    <option value="preis-ab">Preis absteigend</option>
-  </select>
+// Suche, Kategorieknoepfe und Sortierung. Auf einer Kategorieseite entfallen
+// die Knoepfe — man ist bereits in der Kategorie.
+function filterleiste(mitKategorien = true) {
+  return `<div class="filterleiste">
+  ${
+    mitKategorien
+      ? `<div class="f-kat-reihe">${KATEGORIEN.map(
+          (k) => `<button type="button" class="f-kat" data-kategorie="${esc(k)}">${esc(k)}</button>`
+        ).join("")}</div>`
+      : ""
+  }
+  <div class="f-zeile">
+    <input type="search" id="f-suche" class="f-suche js-suche" placeholder="Suchen…" aria-label="Angebote durchsuchen">
+    <select id="f-sort" aria-label="Sortierung">
+      <option value="titel">A–Z</option>
+      <option value="preis-auf">Preis aufsteigend</option>
+      <option value="preis-ab">Preis absteigend</option>
+    </select>
+  </div>
 </div>
 <p class="f-zaehler" id="f-zaehler"></p>`;
+}
+
+function angebotsGitter(liste, relRoot = "") {
+  return `<div class="angebot-grid" id="angebot-grid">
+      ${liste.map((a) => kachel(a, relRoot)).join("\n")}
+    </div>
+    <p id="f-leer" hidden>Keine Angebote gefunden.</p>`;
+}
+
+export function startSeite(anzeigen, konfig) {
+  const kategorien = kategorieBand(anzeigen, konfig.KATEGORIE_MOTIVE, "");
 
   const angebote = `<section class="section" id="angebote">
   <div class="container">
     <p class="eyebrow">Der ganze Bestand</p>
     <h2 class="band-title">Alle ${anzeigen.length} Angebote</h2>
-    ${filterleiste}
-    <div class="angebot-grid" id="angebot-grid">
-      ${anzeigen.map((a) => kachel(a, "")).join("\n")}
-    </div>
-    <p id="f-leer" hidden>Keine Angebote gefunden.</p>
+    ${filterleiste(true)}
+    ${angebotsGitter(anzeigen, "")}
   </div>
 </section>`;
 
@@ -295,6 +371,46 @@ export function startSeite(anzeigen, konfig) {
       kontaktBand(konfig.KONTAKT),
     ].join("\n"),
     fehlendeMotive: kategorien.fehlend,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Kategorieseite
+// ---------------------------------------------------------------------------
+// Eigene Adresse je Kategorie (/k/party-feiern/) mit nur den Angeboten dieser
+// Kategorie. Damit bleibt der Bestand uebersichtlich, wenn er weiter waechst,
+// und jede Kategorie ist verlinkbar.
+//
+// Liefert { hero, content, anzahl }.
+export function kategorieSeite(kat, alleAnzeigen, konfig, relRoot = "../../") {
+  const treffer = alleAnzeigen.filter((a) => a.kategorie === kat);
+  const text = (konfig.KATEGORIE_TEXTE || {})[kat] || "";
+  const andere = kategorieBand(alleAnzeigen, konfig.KATEGORIE_MOTIVE, relRoot, {
+    ausser: kat,
+    eyebrow: "Weiter stöbern",
+    titel: "Andere Kategorien",
+  });
+
+  const hero = `<section class="hero hero-kat">
+  <div class="container">
+    <nav class="brotkrumen"><a href="${relRoot}index.html">Start</a> › <span>${esc(kat)}</span></nav>
+    <h1 class="hero-title">${esc(kat)}</h1>
+    <p class="hero-meta">${treffer.length} ${treffer.length === 1 ? "Angebot" : "Angebote"} zum Mieten</p>
+    ${text ? `<p class="hero-lead">${esc(text)}</p>` : ""}
+  </div>
+</section>`;
+
+  const liste = `<section class="section" id="angebote">
+  <div class="container">
+    ${filterleiste(false)}
+    ${angebotsGitter(treffer, relRoot)}
+  </div>
+</section>`;
+
+  return {
+    hero,
+    content: [liste, andere.html, kontaktBand(konfig.KONTAKT)].join("\n"),
+    anzahl: treffer.length,
   };
 }
 
@@ -369,7 +485,7 @@ export function detailSeite(a, relRoot = "../../", opt = {}) {
     : "";
 
   return `<article class="angebot-detail container">
-  <nav class="brotkrumen"><a href="${relRoot}index.html">Alle Angebote</a> › <span>${esc(a.kategorie)}</span></nav>
+  <nav class="brotkrumen"><a href="${relRoot}index.html">Start</a> › <a href="${kategoriePfad(a.kategorie, relRoot)}">${esc(a.kategorie)}</a></nav>
   <header class="angebot-kopf">
     <h1>${esc(a.titel)}</h1>
     <div class="angebot-fakten">

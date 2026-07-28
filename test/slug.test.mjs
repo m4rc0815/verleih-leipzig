@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { slugFuer } from "../lib/slug.mjs";
+import { slugFuer, kategorieSlug } from "../lib/slug.mjs";
+import { KATEGORIEN } from "../lib/kategorien.mjs";
 
 test("bildet kleingeschriebenen Bindestrich-Slug mit Anzeigen-ID", () => {
   assert.equal(
@@ -32,4 +33,27 @@ test("unterscheidet gleichnamige Anzeigen ueber die ID", () => {
   const a = slugFuer("Neue Umzugskartons auf Rechnung", "111");
   const b = slugFuer("Neue Umzugskartons auf Rechnung", "222");
   assert.notEqual(a, b);
+});
+
+// --- Kategorie-Slugs -------------------------------------------------------
+// Anders als Anzeigen haben Kategorien keine ID: der Name ist eindeutig und
+// soll die Adresse lesbar machen (/k/party-feiern/).
+
+test("bildet den Kategorie-Slug ohne angehaengte ID", () => {
+  assert.equal(kategorieSlug("Party & Feiern"), "party-feiern");
+  assert.equal(kategorieSlug("Umzug & Transport"), "umzug-transport");
+  assert.equal(kategorieSlug("Werkzeug & Reinigung"), "werkzeug-reinigung");
+  assert.equal(kategorieSlug("Foto & Technik"), "foto-technik");
+});
+
+test("schreibt Umlaute im Kategorie-Slug aus", () => {
+  assert.equal(kategorieSlug("Spiel & Spaß"), "spiel-spass");
+});
+
+test("liefert fuer jede echte Kategorie einen eindeutigen, sauberen Slug", () => {
+  const slugs = KATEGORIEN.map(kategorieSlug);
+  assert.equal(new Set(slugs).size, KATEGORIEN.length, "Slugs kollidieren");
+  for (const s of slugs) {
+    assert.match(s, /^[a-z0-9]+(-[a-z0-9]+)*$/, `unsauberer Slug: ${s}`);
+  }
 });
