@@ -186,13 +186,15 @@ function handyBalken(extra = "") {
 </div>`;
 }
 
-export function startHero(anzahl, kontakt = {}) {
+// Bewusst ohne Stueckzahl: der Bestand waechst, und eine feste Zahl im
+// Aushaengeschild wirkt kleiner, als das Angebot tatsaechlich ist.
+export function startHero(kontakt = {}) {
   return `<section class="hero hero-home">
   <div class="container">
     <p class="eyebrow">${esc(cfg.SITE.projectName)} · seit Jahren im Süden der Stadt</p>
     <h1 class="hero-title hero-title-xl">Mieten statt kaufen.</h1>
-    <p class="hero-lead nur-breit">${anzahl} Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution. Von einem Menschen aus Leipzig, nicht von einem Konzern.</p>
-    <p class="hero-lead nur-schmal">${anzahl} Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution.</p>
+    <p class="hero-lead nur-breit">Zahlreiche Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution. Von einem Menschen aus Leipzig, nicht von einem Konzern.</p>
+    <p class="hero-lead nur-schmal">Zahlreiche Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution.</p>
     <div class="hero-suche nur-schmal">
       <input type="search" id="f-suche-oben" class="js-suche" placeholder="Wonach suchst du?" aria-label="Angebote durchsuchen">
     </div>
@@ -355,14 +357,14 @@ export function startSeite(anzeigen, konfig) {
   const angebote = `<section class="section" id="angebote">
   <div class="container">
     <p class="eyebrow">Der ganze Bestand</p>
-    <h2 class="band-title">Alle ${anzeigen.length} Angebote</h2>
+    <h2 class="band-title">Alle Angebote</h2>
     ${filterleiste(true)}
     ${angebotsGitter(anzeigen, "")}
   </div>
 </section>`;
 
   return {
-    hero: startHero(anzeigen.length, konfig.KONTAKT),
+    hero: startHero(konfig.KONTAKT),
     content: [
       zusagenBand(konfig.ZUSAGEN),
       kategorien.html,

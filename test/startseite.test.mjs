@@ -104,8 +104,11 @@ test("das Kontaktband bildet eine gueltige tel-Adresse", () => {
   assert.match(h, /href="mailto:a@b\.de"/);
 });
 
-test("der Kopf nennt die tatsaechliche Anzahl der Angebote", () => {
-  const h = startHero(50, { telefon: "0176 1" });
-  assert.match(h, /50 Sachen/);
+test("der Kopf nennt bewusst keine Stueckzahl", () => {
+  // Der Bestand waechst; eine feste Zahl im Aushaengeschild veraltet und
+  // laesst das Angebot kleiner wirken, als es ist.
+  const h = startHero({ telefon: "0176 1" });
+  assert.match(h, /Zahlreiche Sachen/);
+  assert.doesNotMatch(h, /\d+ Sachen/);
   assert.match(h, /href="#angebote"/);
 });
