@@ -181,11 +181,30 @@ Vier Entscheidungen sind beim Bauen anders ausgefallen als oben beschrieben:
    Desktop-Layout verändert — das war ausgeschlossen. Die Kategorien sind über
    die Kopfnavigation und die Kacheln erreichbar.
 
+## Nachträge vom selben Tag
+
+Nach der ersten Auslieferung kamen vier Punkte dazu:
+
+5. **Keine feste Stückzahl mehr.** „50 Sachen" und „Alle 50 Angebote" veralten,
+   sobald der Bestand wächst. Im Kopf stehen jetzt Beispiele statt einer Menge.
+   Der Filterzähler („20 von 50") bleibt, der zeigt beim Eingrenzen das
+   Verhältnis.
+6. **Seitentexte entschlackt.** Zehn von fünfzehn sichtbaren Sätzen waren
+   gleich gebaut: Aufzählung, Gedankenstrich, Nachsatz. Jetzt keiner mehr; ein
+   Test hält die Texte künftig frei davon. Bis-Striche wie „Mo–So" bleiben.
+7. **Menü, Umschaltreihe, „Alle".** Das Klappmenü schließt nach der Auswahl
+   (`assets/nav.js`), jede Kategorieseite hat oben eine Umschaltreihe zu allen
+   anderen, und die Filterreihe endet mit „Alle" zum Zurücksetzen. Ein Klick
+   setzt die Kategorie; vorher musste man den gewählten Knopf ein zweites Mal
+   treffen, um alles wiederzusehen.
+8. **Kurzer Browser-Titel.** `SITE.seitentitel` (unter 60 Zeichen) für den
+   Tab, `SITE.tagline` weiterhin für Fußzeile und Meta-Beschreibung.
+
 ## Offen
 
-- Die fünf Einleitungssätze braucht Robert zum Gegenlesen.
-- Unverändert offen aus dem Vorgängerentwurf: Bestätigung der Zusage „Ohne
-  Kaution", Roberts Porträtfoto, die Prüfliste vor dem Öffentlichgehen.
+- Roberts Porträtfoto für `ROBERT.bild`.
+- Die Prüfliste (`pruefliste.md`) vor dem Öffentlichgehen mit Robert durchgehen.
+- Die Datenschutzerklärung ist ein ungeprüfter Entwurf.
 - „Hochzeitsfotografie" steht unter Foto & Technik, ist aber eine Dienstleistung
   und kein Mietgegenstand. Der Einleitungssatz erwähnt sie deshalb nicht.
   Ob sie dort richtig aufgehoben ist, entscheidet Robert.

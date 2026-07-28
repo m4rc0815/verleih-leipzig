@@ -47,13 +47,13 @@ test("die Kategorie-Kacheln zeigen die richtige Anzahl je Kategorie", () => {
 
 test("die Kategorie-Kacheln nutzen das konfigurierte Motiv", () => {
   const { html } = kategorieBand(ANZEIGEN, { "Party & Feiern": "a-2" }, "");
-  assert.match(html, /bilder\/a-2\/bild_01-k\.webp/);
+  assert.match(html, /bilder\/a-2\/bild_01-m\.webp/);
 });
 
 test("ein unbekannter Motiv-Slug faellt zurueck und wird gemeldet", () => {
   const { html, fehlend } = kategorieBand(ANZEIGEN, { "Party & Feiern": "gibt-es-nicht" }, "");
   assert.deepEqual(fehlend, ["Party & Feiern"]);
-  assert.match(html, /bilder\/a-1\/bild_01-k\.webp/, "faellt auf die erste Anzeige zurueck");
+  assert.match(html, /bilder\/a-1\/bild_01-m\.webp/, "faellt auf die erste Anzeige zurueck");
 });
 
 test("Kategorien ohne Angebote erscheinen nicht", () => {
@@ -112,6 +112,14 @@ test("der Kopf nennt bewusst keine Stueckzahl", () => {
   assert.doesNotMatch(h, /\d+ Sachen/);
   assert.match(h, /Bierzeltgarnituren/, "statt einer Menge stehen Beispiele da");
   assert.match(h, /href="#angebote"/);
+});
+
+test("der Browser-Titel der Startseite bleibt kurz genug", () => {
+  // Suchmaschinen schneiden bei etwa 60 Zeichen ab. Die lange Fassung steht
+  // weiterhin im Fuss und in der Meta-Beschreibung.
+  const titel = `${cfg.SITE.projectName} — ${cfg.SITE.seitentitel}`;
+  assert.ok(titel.length <= 60, `Titel zu lang (${titel.length}): ${titel}`);
+  assert.ok(cfg.SITE.tagline.length > cfg.SITE.seitentitel.length);
 });
 
 test("kein Gedankenstrich in den Seitentexten", () => {

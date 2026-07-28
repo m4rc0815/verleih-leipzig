@@ -7,7 +7,7 @@ import { webcrypto as wc } from "node:crypto";
 import * as cfg from "./config.mjs";
 import * as T from "./templates/layout.mjs";
 import { deriveKey, encryptPage, gatePage, zugangsGeheimnis } from "./crypt.mjs";
-import { erzeugeVarianten, istBild, webpName } from "./lib/bilder.mjs";
+import { erzeugeVarianten, erzeugeMotivbild, istBild, webpName } from "./lib/bilder.mjs";
 import { findeBezuege } from "./lib/pruefliste.mjs";
 import { KATEGORIEN } from "./lib/kategorien.mjs";
 import { kategorieSlug } from "./lib/slug.mjs";
@@ -80,6 +80,24 @@ for (const a of anzeigen) {
   }
 }
 
+// --- Motivbilder der Kategorie-Kacheln -------------------------------------
+// Fest 3:2 und auf den Gegenstand zugeschnitten. Nur fuer die fuenf
+// konfigurierten Motive noetig, nicht fuer alle 283 Bilder.
+let motiveErzeugt = 0;
+for (const kat of KATEGORIEN) {
+  const gewuenscht = cfg.KATEGORIE_MOTIVE[kat];
+  const motiv =
+    anzeigen.find((a) => a.slug === gewuenscht && a.bilder.length) ||
+    anzeigen.find((a) => a.kategorie === kat && a.bilder.length);
+  if (!motiv) continue;
+  await erzeugeMotivbild(
+    path.join(__dirname, cfg.BILDER.ordner, motiv.slug, motiv.bilder[0]),
+    path.join(DOCS, "bilder", motiv.slug),
+    motiv.bilder[0].replace(/\.[^.]+$/, "")
+  );
+  motiveErzeugt++;
+}
+
 // --- Seiten ----------------------------------------------------------------
 const seiten = []; // gepuffert → am Ende offen oder verschluesselt geschrieben
 function schreibeSeite(pfad, html) {
@@ -92,7 +110,7 @@ const start = T.startSeite(anzeigen, cfg);
 schreibeSeite(
   path.join(DOCS, "index.html"),
   T.documentShell({
-    title: `${cfg.SITE.projectName} — ${cfg.SITE.tagline}`,
+    title: `${cfg.SITE.projectName} — ${cfg.SITE.seitentitel}`,
     relRoot: "",
     active: "start",
     // Die Handy-Fassung sortiert nur auf der Startseite um (Vorstellung unter
@@ -331,6 +349,7 @@ console.log(
   `Seiten            : ${seiten.length} (1 Start + ${katSeiten} Kategorien + ${anzeigen.length} Angebote + Kontakt, Impressum, Datenschutz)`
 );
 console.log(`Bilder umgewandelt: ${bilderErzeugt} → ${(bytesGesamt / 1048576).toFixed(1)} MB WebP`);
+console.log(`Motive der Kacheln : ${motiveErzeugt} × 3:2 zugeschnitten`);
 console.log(`Kategorien        : ${Object.entries(kat).map(([k, n]) => `${k} ${n}`).join(" · ")}`);
 console.log(`Passwortschutz    : ${cfg.GATE.enabled ? `AN — ${verschluesselt} Seiten verschlüsselt` : "AUS — Seiten offen"}`);
 console.log(`Kleinanzeigen-Link: ${cfg.ANZEIGEN_LINK.enabled ? "AN" : "AUS"}`);

@@ -61,6 +61,13 @@ test("unten stehen die anderen Kategorien, nicht die eigene", () => {
   assert.equal(eigene.length, 0, "die eigene Kategorie darf nicht verlinkt sein");
 });
 
+test("die Kachel zeigt die 3:2-Motivfassung, nicht die quadratische", () => {
+  const { html } = kategorieBand(ANZEIGEN, {}, "");
+  assert.match(html, /bilder\/a-1\/b_01-m\.webp/);
+  assert.doesNotMatch(html, /-k\.webp/, "die quadratische Fassung wuerde oben beschnitten");
+  assert.doesNotMatch(html, /loading="lazy"/, "die fuenf Kacheln stehen oben und laden sofort");
+});
+
 test("die Kategorie-Kacheln sind Links auf die jeweilige Seite", () => {
   const { html } = kategorieBand(ANZEIGEN, {}, "");
   assert.match(html, /<a class="kat-kachel" href="k\/party-feiern\/index\.html"/);

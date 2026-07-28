@@ -6,7 +6,11 @@ export const BESTANDSLISTE =
 
 export const SITE = {
   projectName: "Verleih Leipzig",
+  // tagline steht im Seitenfuss und in der Meta-Beschreibung (dort sind bis zu
+  // 160 Zeichen sinnvoll). Fuer den Browser-Titel ist sie zu lang: Google
+  // schneidet nach etwa 60 Zeichen ab, deshalb der eigene, kurze seitentitel.
   tagline: "Party, Umzug und Werkzeug mieten in Leipzig. Mit Lieferservice und Rechnung.",
+  seitentitel: "Party, Umzug und Werkzeug mieten",
   baseUrl: "https://m4rc0815.github.io/verleih-leipzig/",
   betreiber: "Robert Kipf",
   ort: "Leipzig",
@@ -51,9 +55,10 @@ export const BILDER = {
 };
 
 // --- Vorstellung auf der Startseite ----------------------------------------
-// Roberts eigener Text, fuer die Homepage geglaettet. Inhalt und Zusagen
-// stammen aus seiner Selbstbeschreibung im Kleinanzeigen-Business-Portal.
-// Aendern geht hier — die Vorlagen muessen dafuer nicht angefasst werden.
+// Roberts eigener Text, fuer die Homepage geglaettet und von ihm am
+// 28.07.2026 freigegeben. Inhalt und Zusagen stammen aus seiner
+// Selbstbeschreibung im Kleinanzeigen-Business-Portal. Aendern geht hier,
+// die Vorlagen muessen dafuer nicht angefasst werden.
 export const ROBERT = {
   name: "Robert Kipf",
   initialen: "RK",
@@ -71,8 +76,9 @@ export const ROBERT = {
 
 // --- Zusagen-Leiste ---------------------------------------------------------
 // Alle vier stammen aus Roberts eigenen Anzeigentexten (Lieferservice 47/50,
-// Rechnung 48/50, Wochenende 39/50). "Ohne Kaution" ist erschlossen: Kaution
-// kommt in keiner einzigen Anzeige vor — von Robert bestaetigen lassen.
+// Rechnung 48/50, Wochenende 39/50). "Ohne Kaution" war erschlossen, weil das
+// Wort in keiner einzigen Anzeige vorkommt; Robert hat es am 28.07.2026
+// bestaetigt, ebenso seinen Vorstellungstext und die Kategoriesaetze.
 export const ZUSAGEN = [
   { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe die Sachen vorbei und hole sie wieder ab." },
   { icon: "beleg", titel: "Auf Rechnung", text: "Auch für Firmen und Vereine. Zahlen kannst du bar, per PayPal oder per Überweisung." },
@@ -81,8 +87,8 @@ export const ZUSAGEN = [
 ];
 
 // --- Einleitungssaetze der Kategorieseiten ---------------------------------
-// Je ein Satz, abgeleitet aus den Anzeigentiteln dieser Kategorie — also
-// belegt, nicht erfunden. Robert liest gegen; Aendern ist hier eine Zeile.
+// Abgeleitet aus den Anzeigentiteln dieser Kategorie, also belegt und nicht
+// erfunden; von Robert am 28.07.2026 freigegeben. Aendern ist hier eine Zeile.
 // Leer lassen = die Kategorieseite zeigt nur Name und Anzahl.
 // Bewusst unterschiedlich lang und unterschiedlich gebaut: fuenf Saetze nach
 // demselben Muster (Aufzaehlung, Gedankenstrich, Nachsatz) lesen sich wie vom
@@ -104,10 +110,15 @@ export const KATEGORIE_TEXTE = {
 // Fest gewaehlt, damit dort nicht zufaellig ein Kartonstapel vor weisser Wand
 // landet. Fehlt ein Slug (Anzeige geloescht), nimmt der Bau das erste Bild der
 // ersten Anzeige dieser Kategorie und warnt in der Ausgabe.
+// Gewaehlt wurde nach dem, was in einer 3:2-Kachel etwas hergibt: Farbe,
+// Tiefe, moeglichst eine Einsatzsituation statt eines Gegenstands vor weisser
+// Wand. Umzug zeigt deshalb den Treppensteiger im Garten statt der Sackkarre
+// vor der Zimmertuer, Werkzeug den Linienlaser im Einsatz statt der
+// Schlauchtrommel aus naechster Naehe.
 export const KATEGORIE_MOTIVE = {
   "Party & Feiern": "15-bierzeltgarnituren-mieten-mit-lieferservice-biertisch-gar-2799184091",
-  "Umzug & Transport": "profi-sackkarre-mieten-250kg-tragkraft-auf-rechnung-lieferse-2939428950",
+  "Umzug & Transport": "treppensteiger-sackkarre-mieten-mit-rechnung-lieferservice-2799118052",
   "Spiel & Spaß": "huepfburg-mieten-tuev-geprueft-mit-lieferservice-rechnung-2807492142",
-  "Werkzeug & Reinigung": "kaercher-profi-hochdruckreiniger-hd-5-15-c-plus-mieten-mit-f-3238091408",
+  "Werkzeug & Reinigung": "bosch-linienlaser-laser-mieten-stativ-lieferservice-auf-rech-3047127765",
   "Foto & Technik": "polaroid-kamera-mieten-sofortbildkamera-mit-lieferservice-3225566560",
 };

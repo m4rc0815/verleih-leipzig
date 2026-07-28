@@ -11,9 +11,9 @@
   }
 
   // Auswahl: sofort schliessen, nicht erst wenn die neue Seite geladen ist.
-  Array.prototype.forEach.call(menue.querySelectorAll("a"), function (a) {
-    a.addEventListener("click", schliessen);
-  });
+  // Der Eintrag der aktuellen Seite ist ein <span> und laesst das Menue sonst
+  // stehen, weil kein Seitenwechsel folgt — deshalb der ganze Listenbereich.
+  menue.querySelector(".nav-kat-liste").addEventListener("click", schliessen);
 
   document.addEventListener("click", function (e) {
     if (!menue.contains(e.target)) schliessen();

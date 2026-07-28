@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import { erzeugeVarianten, GROESSEN, webpName, istBild } from "../lib/bilder.mjs";
+import { erzeugeVarianten, erzeugeMotivbild, GROESSEN, webpName, motivName, istBild } from "../lib/bilder.mjs";
 
 test("bildet den WebP-Namen unabhaengig von der Endung", () => {
   assert.equal(webpName("bild_01.jpg"), "bild_01.webp");
@@ -16,6 +16,28 @@ test("bildet den WebP-Namen unabhaengig von der Endung", () => {
 
 test("laesst Punkte im Dateinamen stehen", () => {
   assert.equal(webpName("bierzelt.2er.set.jpg"), "bierzelt.2er.set.webp");
+});
+
+test("bildet den Namen der Motivfassung", () => {
+  assert.equal(motivName("bild_01.jpg"), "bild_01-m.webp");
+  assert.equal(motivName("Foto.HEIC"), "Foto-m.webp");
+});
+
+test("das Motivbild ist immer 3:2, egal wie das Original liegt", async () => {
+  const ordner = fs.mkdtempSync(path.join(os.tmpdir(), "motiv-"));
+  // Hochformat: genau der Fall, der in der Kachel vorher schiefging.
+  const hoch = path.join(ordner, "hoch.jpg");
+  await sharp({ create: { width: 900, height: 1200, channels: 3, background: "#4488cc" } })
+    .jpeg().toFile(hoch);
+
+  const { ziel } = await erzeugeMotivbild(hoch, ordner, "hoch");
+  const m = await sharp(ziel).metadata();
+  assert.equal(m.width, GROESSEN.motiv.breite);
+  assert.equal(m.height, GROESSEN.motiv.hoehe);
+  assert.equal((m.width / m.height).toFixed(2), "1.50");
+  assert.equal(m.format, "webp");
+
+  fs.rmSync(ordner, { recursive: true, force: true });
 });
 
 test("erkennt Bilddateien und ignoriert alles andere", () => {

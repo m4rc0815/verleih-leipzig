@@ -1,7 +1,7 @@
 // HTML-Bausteine der Verleih-Homepage, im NotebookLM-inspirierten Stil der
 // Finanz-Webseite — gleiche Struktur, gruener Akzent, andere Inhalte.
 import * as cfg from "../config.mjs";
-import { webpName } from "../lib/bilder.mjs";
+import { webpName, motivName } from "../lib/bilder.mjs";
 import { KATEGORIEN } from "../lib/kategorien.mjs";
 import { kategorieSlug } from "../lib/slug.mjs";
 import { readFileSync } from "node:fs";
@@ -36,9 +36,13 @@ export function kategoriePfad(kat, relRoot = "") {
 }
 
 function katLinks(relRoot, aktiveKategorie) {
-  return KATEGORIEN.map(
-    (k) =>
-      `<a href="${kategoriePfad(k, relRoot)}"${k === aktiveKategorie ? ' class="is-active"' : ""}>${esc(k)}</a>`
+  // Die Kategorie, auf der man schon steht, ist kein Link: ein Klick darauf
+  // fuehrt nirgendwohin, und weil die Seite nicht wechselt, bliebe das
+  // aufgeklappte Menue stehen.
+  return KATEGORIEN.map((k) =>
+    k === aktiveKategorie
+      ? `<span class="is-active" aria-current="page">${esc(k)}</span>`
+      : `<a href="${kategoriePfad(k, relRoot)}">${esc(k)}</a>`
   ).join("");
 }
 
@@ -253,15 +257,21 @@ export function kategorieBand(anzeigen, motive = {}, relRoot = "", opt = {}) {
     if (gewuenscht && !motiv) fehlend.push(kat);
     if (!motiv) motiv = treffer.find((a) => a.bilder && a.bilder.length);
 
+    // Die Motivfassung ist fest 3:2 und auf den Gegenstand zugeschnitten —
+    // anders als die quadratische Kachelfassung, die das CSS oben beschneiden
+    // muesste.
     const bild =
       motiv && motiv.bilder && motiv.bilder.length
-        ? `${relRoot}bilder/${motiv.slug}/${webpName(motiv.bilder[0], true)}`
+        ? `${relRoot}bilder/${motiv.slug}/${motivName(motiv.bilder[0])}`
         : "";
 
     kacheln.push(`<a class="kat-kachel" href="${kategoriePfad(kat, relRoot)}">
     <span class="kat-bild">${
       bild
-        ? `<img src="${esc(bild)}" alt="" loading="lazy" width="240" height="160">`
+        ? // ohne loading="lazy": die fuenf Kacheln stehen weit oben und sind
+          // zusammen nur rund 330 KB gross — nachgeladen wuerden sie sichtbar
+          // spaeter erscheinen als der Text daneben.
+          `<img src="${esc(bild)}" alt="" width="720" height="480">`
         : `<span class="angebot-kein-bild" aria-hidden="true">📦</span>`
     }</span>
     <span class="kat-name">${esc(kat)}</span>
