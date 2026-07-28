@@ -7,6 +7,7 @@ import {
   kontaktBand,
   startHero,
 } from "../templates/layout.mjs";
+import * as cfg from "../config.mjs";
 
 const ZUSAGEN = [
   { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe alles vorbei." },
@@ -108,7 +109,25 @@ test("der Kopf nennt bewusst keine Stueckzahl", () => {
   // Der Bestand waechst; eine feste Zahl im Aushaengeschild veraltet und
   // laesst das Angebot kleiner wirken, als es ist.
   const h = startHero({ telefon: "0176 1" });
-  assert.match(h, /Zahlreiche Sachen/);
   assert.doesNotMatch(h, /\d+ Sachen/);
+  assert.match(h, /Bierzeltgarnituren/, "statt einer Menge stehen Beispiele da");
   assert.match(h, /href="#angebote"/);
+});
+
+test("kein Gedankenstrich in den Seitentexten", () => {
+  // Zehn von fuenfzehn Saetzen waren nach demselben Muster gebaut:
+  // Aufzaehlung, Gedankenstrich, Nachsatz. Einzeln unauffaellig, in dieser
+  // Haeufung liest es sich wie vom Fliessband.
+  const texte = [
+    startHero({ telefon: "0176 1" }),
+    zusagenBand(cfg.ZUSAGEN),
+    robertBlock(cfg.ROBERT, cfg.KONTAKT, ""),
+    kontaktBand(cfg.KONTAKT),
+    ...Object.values(cfg.KATEGORIE_TEXTE),
+    cfg.SITE.tagline,
+  ].join("\n");
+  // Gemeint ist der freistehende Strich als Satzzeichen (" — "), nicht der
+  // Bis-Strich in "Mo–So" oder "7:00–23:00" — der ist korrekte Typografie.
+  const treffer = texte.split("\n").filter((z) => / [—–] /.test(z));
+  assert.deepEqual(treffer, [], `Gedankenstrich gefunden in: ${treffer.join(" | ")}`);
 });

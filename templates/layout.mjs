@@ -191,10 +191,10 @@ function handyBalken(extra = "") {
 export function startHero(kontakt = {}) {
   return `<section class="hero hero-home">
   <div class="container">
-    <p class="eyebrow">${esc(cfg.SITE.projectName)} · seit Jahren im Süden der Stadt</p>
+    <p class="eyebrow">${esc(cfg.SITE.projectName)} · Südvorstadt</p>
     <h1 class="hero-title hero-title-xl">Mieten statt kaufen.</h1>
-    <p class="hero-lead nur-breit">Zahlreiche Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution. Von einem Menschen aus Leipzig, nicht von einem Konzern.</p>
-    <p class="hero-lead nur-schmal">Zahlreiche Sachen für Feier, Umzug und Baustelle — geliefert, auf Rechnung, ohne Kaution.</p>
+    <p class="hero-lead nur-breit">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Ich liefere, hole wieder ab und schreibe eine Rechnung. Kaution verlange ich keine.</p>
+    <p class="hero-lead nur-schmal">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Ich liefere, hole ab und schreibe eine Rechnung.</p>
     <div class="hero-suche nur-schmal">
       <input type="search" id="f-suche-oben" class="js-suche" placeholder="Wonach suchst du?" aria-label="Angebote durchsuchen">
     </div>
@@ -235,7 +235,7 @@ export function zusagenBand(zusagen) {
 export function kategorieBand(anzeigen, motive = {}, relRoot = "", opt = {}) {
   const ausser = opt.ausser || "";
   const eyebrow = opt.eyebrow || "Wonach suchst du?";
-  const titel = opt.titel || "Alles für Feier, Umzug und Baustelle";
+  const titel = opt.titel || "Für Feier, Umzug und Baustelle";
   const fehlend = [];
   const kacheln = [];
 

@@ -6,7 +6,7 @@ export const BESTANDSLISTE =
 
 export const SITE = {
   projectName: "Verleih Leipzig",
-  tagline: "Party, Umzug und Werkzeug mieten — mit Lieferservice und Rechnung",
+  tagline: "Party, Umzug und Werkzeug mieten in Leipzig. Mit Lieferservice und Rechnung.",
   baseUrl: "https://m4rc0815.github.io/verleih-leipzig/",
   betreiber: "Robert Kipf",
   ort: "Leipzig",
@@ -61,8 +61,9 @@ export const ROBERT = {
   // z. B. "assets/robert.jpg". Leer = gruener Kreis mit den Initialen.
   bild: "",
   absaetze: [
-    "Ich bin Robert, Kleingewerbetreibender aus Leipzig. Seit Jahren vermiete ich, was man selten braucht, aber dann dringend: von der Bierzeltgarnitur über die Sackkarre bis zur Hüpfburg.",
-    "Zuverlässigkeit und Pünktlichkeit sind mir wichtig — und dass ihr zufrieden seid. Ich arbeite sieben Tage die Woche, das ganze Jahr über. Ruft einfach an, dann finden wir eine Lösung.",
+    "Ich bin Robert, Kleingewerbetreibender aus Leipzig. Seit Jahren vermiete ich, was man selten braucht, aber dann dringend: zum Beispiel Bierzeltgarnituren, Sackkarren und Hüpfburgen.",
+    "Zuverlässigkeit und Pünktlichkeit sind mir wichtig, und dass ihr zufrieden seid. Ich arbeite sieben Tage die Woche, das ganze Jahr über. Ruft einfach an, dann finden wir eine Lösung.",
+    "Ihr habt es hier mit mir zu tun, nicht mit einem Konzern.",
   ],
   instagram: "https://www.instagram.com/robertkipf/",
   instagramName: "@robertkipf",
@@ -74,26 +75,29 @@ export const ROBERT = {
 // kommt in keiner einzigen Anzeige vor — von Robert bestaetigen lassen.
 export const ZUSAGEN = [
   { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe die Sachen vorbei und hole sie wieder ab." },
-  { icon: "beleg", titel: "Auf Rechnung", text: "Auch für Firmen und Vereine — Zahlung bar, per PayPal oder Überweisung." },
-  { icon: "kalender", titel: "7 Tage die Woche", text: "Von 7 bis 23 Uhr erreichbar, auch sonntags und feiertags." },
-  { icon: "schild", titel: "Ohne Kaution", text: "Keine Hinterlegung, kein Papierkram vorab." },
+  { icon: "beleg", titel: "Auf Rechnung", text: "Auch für Firmen und Vereine. Zahlen kannst du bar, per PayPal oder per Überweisung." },
+  { icon: "kalender", titel: "7 Tage die Woche", text: "Ich bin von 7 bis 23 Uhr erreichbar, auch sonntags und feiertags." },
+  { icon: "schild", titel: "Ohne Kaution", text: "Ich verlange keine Kaution und keine Unterlagen vorab." },
 ];
 
 // --- Einleitungssaetze der Kategorieseiten ---------------------------------
 // Je ein Satz, abgeleitet aus den Anzeigentiteln dieser Kategorie — also
 // belegt, nicht erfunden. Robert liest gegen; Aendern ist hier eine Zeile.
 // Leer lassen = die Kategorieseite zeigt nur Name und Anzahl.
+// Bewusst unterschiedlich lang und unterschiedlich gebaut: fuenf Saetze nach
+// demselben Muster (Aufzaehlung, Gedankenstrich, Nachsatz) lesen sich wie vom
+// Fliessband.
 export const KATEGORIE_TEXTE = {
   "Party & Feiern":
-    "Zapfanlage, Bierzeltgarnituren, Musikboxen, Nebel- und Zuckerwattemaschine — alles, was eine Feier braucht, von der Hochzeit bis zum Geburtstag im Hof.",
+    "Zapfanlage, Bierzeltgarnituren, Musikboxen, Nebel- und Zuckerwattemaschine. Für die Hochzeit genauso wie für den Geburtstag im Hof.",
   "Umzug & Transport":
-    "Neue Umzugskartons in mehreren Größen, dazu Sackkarre, Treppensteiger und Transportwagen — geliefert und nach dem Umzug wieder abgeholt.",
+    "Neue Umzugskartons in mehreren Größen, dazu Sackkarre, Treppensteiger und Transportwagen. Ich liefere sie und hole sie nach dem Umzug wieder ab.",
   "Spiel & Spaß":
-    "Hüpfburg mit TÜV, XXL-Jenga, 4-Gewinnt, Schwungtuch und SUP-Board — für Kindergeburtstage, Sommerfeste und den Tag am Wasser.",
+    "Hüpfburg mit TÜV, XXL-Jenga, 4-Gewinnt und Schwungtuch für Kindergeburtstage und Sommerfeste. Das SUP-Board ist für den Tag am Wasser.",
   "Werkzeug & Reinigung":
-    "Kärcher-Hochdruck- und Teppichreiniger, Bohrmaschine, Baustrahler und Linienlaser — Geräte, die man ein Wochenende braucht und nicht kaufen muss.",
+    "Kärcher-Hochdruck- und Teppichreiniger, Bohrmaschine, Baustrahler und Linienlaser für das eine Wochenende, an dem man sie braucht.",
   "Foto & Technik":
-    "Beamer mit 100-Zoll-Leinwand, Sofortbildkameras und die PlayStation dazu — für Filmabend, Hochzeit oder Fotoecke auf der Feier.",
+    "Beamer mit 100-Zoll-Leinwand, Sofortbildkameras und die PlayStation für den Filmabend oder die Fotoecke auf der Feier.",
 };
 
 // --- Motive der Kategorie-Kacheln ------------------------------------------
