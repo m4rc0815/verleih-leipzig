@@ -49,3 +49,44 @@ export const KONTAKT = {
 export const BILDER = {
   ordner: "content/bilder",
 };
+
+// --- Vorstellung auf der Startseite ----------------------------------------
+// Roberts eigener Text, fuer die Homepage geglaettet. Inhalt und Zusagen
+// stammen aus seiner Selbstbeschreibung im Kleinanzeigen-Business-Portal.
+// Aendern geht hier — die Vorlagen muessen dafuer nicht angefasst werden.
+export const ROBERT = {
+  name: "Robert Kipf",
+  initialen: "RK",
+  // Sobald ein Portraet vorliegt: Datei nach assets/ legen und hier eintragen,
+  // z. B. "assets/robert.jpg". Leer = gruener Kreis mit den Initialen.
+  bild: "",
+  absaetze: [
+    "Ich bin Robert, Kleingewerbetreibender aus Leipzig. Seit Jahren vermiete ich, was man selten braucht, aber dann dringend: von der Bierzeltgarnitur über die Sackkarre bis zur Hüpfburg.",
+    "Zuverlässigkeit und Pünktlichkeit sind mir wichtig — und dass ihr zufrieden seid. Ich arbeite sieben Tage die Woche, das ganze Jahr über. Ruft einfach an, dann finden wir eine Lösung.",
+  ],
+  instagram: "https://www.instagram.com/robertkipf/",
+  instagramName: "@robertkipf",
+};
+
+// --- Zusagen-Leiste ---------------------------------------------------------
+// Alle vier stammen aus Roberts eigenen Anzeigentexten (Lieferservice 47/50,
+// Rechnung 48/50, Wochenende 39/50). "Ohne Kaution" ist erschlossen: Kaution
+// kommt in keiner einzigen Anzeige vor — von Robert bestaetigen lassen.
+export const ZUSAGEN = [
+  { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe die Sachen vorbei und hole sie wieder ab." },
+  { icon: "beleg", titel: "Auf Rechnung", text: "Auch für Firmen und Vereine — Zahlung bar, per PayPal oder Überweisung." },
+  { icon: "kalender", titel: "7 Tage die Woche", text: "Von 7 bis 23 Uhr erreichbar, auch sonntags und feiertags." },
+  { icon: "schild", titel: "Ohne Kaution", text: "Keine Hinterlegung, kein Papierkram vorab." },
+];
+
+// --- Motive der Kategorie-Kacheln ------------------------------------------
+// Fest gewaehlt, damit dort nicht zufaellig ein Kartonstapel vor weisser Wand
+// landet. Fehlt ein Slug (Anzeige geloescht), nimmt der Bau das erste Bild der
+// ersten Anzeige dieser Kategorie und warnt in der Ausgabe.
+export const KATEGORIE_MOTIVE = {
+  "Party & Feiern": "15-bierzeltgarnituren-mieten-mit-lieferservice-biertisch-gar-2799184091",
+  "Umzug & Transport": "profi-sackkarre-mieten-250kg-tragkraft-auf-rechnung-lieferse-2939428950",
+  "Spiel & Spaß": "huepfburg-mieten-tuev-geprueft-mit-lieferservice-rechnung-2807492142",
+  "Werkzeug & Reinigung": "kaercher-profi-hochdruckreiniger-hd-5-15-c-plus-mieten-mit-f-3238091408",
+  "Foto & Technik": "polaroid-kamera-mieten-sofortbildkamera-mit-lieferservice-3225566560",
+};

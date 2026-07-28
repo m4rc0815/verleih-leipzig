@@ -9,7 +9,6 @@ import * as T from "./templates/layout.mjs";
 import { deriveKey, encryptPage, gatePage, zugangsGeheimnis } from "./crypt.mjs";
 import { erzeugeVarianten, istBild, webpName } from "./lib/bilder.mjs";
 import { findeBezuege } from "./lib/pruefliste.mjs";
-import { KATEGORIEN } from "./lib/kategorien.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DOCS = path.join(__dirname, "docs");
@@ -86,16 +85,7 @@ function schreibeSeite(pfad, html) {
 }
 
 // Startseite
-const filterleiste = `<div class="filterleiste">
-  ${KATEGORIEN.map((k) => `<button type="button" class="f-kat" data-kategorie="${k}">${k}</button>`).join("\n  ")}
-  <input type="search" id="f-suche" class="f-suche" placeholder="Suchen…" aria-label="Angebote durchsuchen">
-  <select id="f-sort" aria-label="Sortierung">
-    <option value="titel">A–Z</option>
-    <option value="preis-auf">Preis aufsteigend</option>
-    <option value="preis-ab">Preis absteigend</option>
-  </select>
-</div>
-<p class="f-zaehler" id="f-zaehler"></p>`;
+const start = T.startSeite(anzeigen, cfg);
 
 schreibeSeite(
   path.join(DOCS, "index.html"),
@@ -103,18 +93,8 @@ schreibeSeite(
     title: `${cfg.SITE.projectName} — ${cfg.SITE.tagline}`,
     relRoot: "",
     active: "start",
-    hero: T.simpleHero({
-      eyebrow: cfg.SITE.projectName,
-      title: cfg.SITE.tagline,
-      meta: `${anzeigen.length} Angebote · ${cfg.SITE.ort}`,
-    }),
-    content: `<div class="container">
-      ${filterleiste}
-      <div class="angebot-grid" id="angebot-grid">
-        ${anzeigen.map((a) => T.kachel(a, "")).join("\n")}
-      </div>
-      <p id="f-leer" hidden>Keine Angebote gefunden.</p>
-    </div>`,
+    hero: start.hero,
+    content: start.content,
     scripts: ["assets/filter.js"],
   })
 );
@@ -331,6 +311,10 @@ if (bildAenderungen.length) {
     const pfeil = b.jetzt > b.vorher ? "+" : "−";
     console.log(`  ${pfeil} ${b.titel.slice(0, 50)}: ${b.vorher} → ${b.jetzt}`);
   }
+}
+if (start.fehlendeMotive.length) {
+  console.log(`\n⚠ Motiv-Slug nicht gefunden (config.mjs → KATEGORIE_MOTIVE), Ersatzbild genommen:`);
+  for (const k of start.fehlendeMotive) console.log(`  · ${k}`);
 }
 if (ohneBild.length) {
   console.log(`\n⚠ ${ohneBild.length} Anzeige(n) ohne Bild — Kachel zeigt nur ein Symbol:`);
