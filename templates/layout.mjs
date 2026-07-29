@@ -517,7 +517,6 @@ export function kachel(a, relRoot = "") {
            : `<div class="angebot-kein-bild" aria-hidden="true">📦</div>`}
   </div>
   <div class="angebot-text">
-    <span class="angebot-kategorie">${esc(a.kategorie)}</span>
     <h3 class="angebot-titel">${esc(a.titel)}</h3>
     <span class="angebot-preis">${esc(a.preis || "auf Anfrage")}</span>
   </div>

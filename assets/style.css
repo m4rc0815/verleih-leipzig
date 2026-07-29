@@ -472,7 +472,9 @@ a { color: inherit; }
 .angebot-bild img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .angebot-kein-bild { font-size: 2.5rem; opacity: .35; }
 .angebot-text { padding: .8rem .9rem 1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1 1 auto; background: var(--card); }
-.angebot-kategorie { font-size: .72rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+/* Die Kategorie stand hier klein über dem Titel. Seit die Angebote in
+   Kategorieblöcken stehen, wiederholte sie nur die Überschrift darüber —
+   auf der Startseite zwanzigmal untereinander dasselbe Wort. */
 /* Genau zwei Zeilen, auch wenn der Titel nur eine braucht: sonst sind Kacheln
    mit kurzem Titel 19 px flacher als ihre Nachbarn, und weil das Raster die
    Zeilen aneinander ausrichtet, laeuft ein ungleichmaessiger Rhythmus durch die
@@ -727,7 +729,6 @@ a { color: inherit; }
   /* Die Zweizeilen-Begrenzung steht inzwischen oben und gilt ueberall. */
   .angebot-text { padding: .6rem .7rem .8rem; gap: .2rem; }
   .angebot-preis { font-size: 1rem; }
-  .angebot-kategorie { font-size: .66rem; }
   .filterleiste { display: contents; }
   .f-kat-reihe {
     display: flex; gap: .4rem; margin: 0 0 .5rem;
