@@ -17,6 +17,26 @@ test("gefilterte Angebotskacheln verschwinden wirklich", () => {
   );
 });
 
+test("alle Angebotskacheln sind gleich hoch", () => {
+  // Gemessen im Raster: Kacheln mit einzeiligem Titel waren 373 px hoch, die
+  // mit zweizeiligem 392 px. Die Begrenzung allein reicht nicht — ohne
+  // min-height bleibt eine einzeilige Kachel flacher.
+  const regel = css.match(/\.angebot-titel \{[^}]+\}/s);
+  assert.ok(regel, "Regel .angebot-titel fehlt");
+  assert.match(regel[0], /-webkit-line-clamp: 2/, "Titel nicht auf zwei Zeilen begrenzt");
+  assert.match(regel[0], /min-height:/, "ohne min-height bleiben kurze Titel flacher");
+});
+
+test("die Galeriebuehne hat eine feste Hoehe", () => {
+  // Ohne festes Verhaeltnis richtete sich die Hoehe nach dem gerade gezeigten
+  // Bild. Bei 23 von 48 mehrbildrigen Anzeigen wechseln Hoch- und Querformat —
+  // dort sprang beim Weiterklicken der halbe Seiteninhalt.
+  const regel = css.match(/\.galerie-buehne \{[^}]+\}/s);
+  assert.ok(regel, "Regel .galerie-buehne fehlt");
+  assert.match(regel[0], /aspect-ratio:/, "kein festes Seitenverhaeltnis");
+  assert.match(css, /\.galerie-buehne img \{[^}]*object-fit: contain/, "das Bild darf nicht beschnitten werden");
+});
+
 test("die Handy-Regeln gelten nur unterhalb von 700 px", () => {
   const block = css.slice(css.indexOf("=== Handy-Fassung"));
   assert.ok(block.length > 500, "Der Handy-Block wurde nicht gefunden");

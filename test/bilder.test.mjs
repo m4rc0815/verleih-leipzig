@@ -40,6 +40,23 @@ test("das Motivbild ist immer 3:2, egal wie das Original liegt", async () => {
   fs.rmSync(ordner, { recursive: true, force: true });
 });
 
+test("die Kachelfassung ist immer quadratisch, egal wie das Original liegt", async () => {
+  // Vorher behielt die Kachel das Seitenverhaeltnis des Originals und erst das
+  // CSS schnitt zu, oben ansetzend. Von 50 Kachelbildern waren 40 hochkant, die
+  // Verhaeltnisse reichten von 0,56 bis 1,44: sichtbar blieben mal 56 %, mal
+  // 100 % des Bildes. Nebeneinander sahen die Motive dadurch unterschiedlich
+  // gross aus, obwohl die Kacheln gleich gross sind.
+  const ordner = fs.mkdtempSync(path.join(os.tmpdir(), "kachel-"));
+  for (const [breite, hoehe] of [[900, 1600], [1600, 900], [800, 800]]) {
+    const name = `f${breite}x${hoehe}`;
+    const { kachel } = await erzeugeVarianten(await testbild(breite, hoehe), ordner, name);
+    const m = await sharp(kachel).metadata();
+    assert.equal(m.width, GROESSEN.kachel, `${name}: Breite`);
+    assert.equal(m.height, GROESSEN.kachel, `${name}: Hoehe`);
+  }
+  fs.rmSync(ordner, { recursive: true, force: true });
+});
+
 test("erkennt Bilddateien und ignoriert alles andere", () => {
   assert.ok(istBild("bild_01.jpg"));
   assert.ok(istBild("Foto.PNG"));

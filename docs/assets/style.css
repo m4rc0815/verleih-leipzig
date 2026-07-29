@@ -422,13 +422,23 @@ a { color: inherit; }
   display: grid; place-items: center;
   overflow: hidden;
 }
-/* Oben ausrichten statt zentrieren — bei Hochformat wird unten abgeschnitten,
-   dafür sitzt der Gegenstand immer im sichtbaren Teil der Kachel. */
-.angebot-bild img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+/* Der Zuschnitt sitzt jetzt in der Bilddatei: build.mjs legt jedes Kachelbild
+   als 500er Quadrat an, ausgerichtet auf den Gegenstand. Das CSS muss nichts
+   mehr beschneiden, deshalb steht hier "center" statt "top center". */
+.angebot-bild img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .angebot-kein-bild { font-size: 2.5rem; opacity: .35; }
 .angebot-text { padding: .8rem .9rem 1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1 1 auto; background: var(--card); }
 .angebot-kategorie { font-size: .72rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.angebot-titel { font-size: .95rem; line-height: 1.3; margin: 0; font-weight: 600; }
+/* Genau zwei Zeilen, auch wenn der Titel nur eine braucht: sonst sind Kacheln
+   mit kurzem Titel 19 px flacher als ihre Nachbarn, und weil das Raster die
+   Zeilen aneinander ausrichtet, laeuft ein ungleichmaessiger Rhythmus durch die
+   ganze Liste. Laengere Titel werden abgeschnitten — vollstaendig stehen sie
+   auf der Detailseite. */
+.angebot-titel {
+  font-size: .95rem; line-height: 1.3; margin: 0; font-weight: 600;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 2.6em;
+}
 .angebot-preis { font-weight: 700; font-size: 1.05rem; margin-top: auto; }
 
 /* --- Filterleiste --------------------------------------------------------- */
@@ -456,8 +466,22 @@ a { color: inherit; }
 .f-zaehler { font-size: .85rem; color: var(--ink-soft); margin: .3rem 0 0; }
 
 /* --- Galerie der Detailseite ---------------------------------------------- */
-.galerie-buehne { margin: 0 0 .7rem; background: #f2f2ef; border-radius: var(--radius); overflow: hidden; }
-.galerie-buehne img { width: 100%; height: auto; display: block; max-height: 70vh; object-fit: contain; }
+/* Feste quadratische Bühne. Vorher richtete sich ihre Höhe nach dem gerade
+   gezeigten Bild: bei 23 der 48 mehrbildrigen Anzeigen wechseln Hoch- und
+   Querformat, dort sprang beim Weiterklicken der halbe Seiteninhalt nach oben
+   oder unten. Zugeschnitten wird hier nichts (contain) — auf der Detailseite
+   will man den ganzen Gegenstand sehen. */
+/* Kein Grid mit place-items hier: darin gilt die Hoehe des Kastens als
+   unbestimmt, "height: 100%" am Bild fiele auf "auto" zurueck und das Bild
+   liefe unten aus der Buehne heraus. object-fit zentriert von selbst. */
+.galerie-buehne {
+  /* max-height kappt auf hohen Bildschirmen die Hoehe und ueber das
+     Seitenverhaeltnis auch die Breite — dann steht der Kasten schmaler als die
+     Spalte und muss mittig sitzen. */
+  margin: 0 auto .7rem; background: #f2f2ef; border-radius: var(--radius);
+  overflow: hidden; aspect-ratio: 4/3; max-height: 70vh;
+}
+.galerie-buehne img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .galerie-reihe { display: flex; gap: .5rem; flex-wrap: wrap; }
 .galerie-vorschau { border: 2px solid transparent; border-radius: var(--radius-sm); padding: 0; background: none; cursor: pointer; line-height: 0; overflow: hidden; }
 .galerie-vorschau img { width: 68px; height: 68px; object-fit: cover; }
@@ -651,14 +675,7 @@ a { color: inherit; }
   #angebote { padding-top: 1.2rem; }
   #angebote .band-title { font-size: 1.5rem; margin-bottom: .7rem; }
 
-  /* Titel auf zwei Zeilen begrenzen: die Kleinanzeigen-Titel sind bis zu
-     sechs Zeilen lang, dadurch waren die Kacheln unterschiedlich hoch und die
-     Liste doppelt so lang wie noetig. Der volle Titel steht auf der
-     Detailseite. */
-  .angebot-titel {
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+  /* Die Zweizeilen-Begrenzung steht inzwischen oben und gilt ueberall. */
   .angebot-text { padding: .6rem .7rem .8rem; gap: .2rem; }
   .angebot-preis { font-size: 1rem; }
   .angebot-kategorie { font-size: .66rem; }
@@ -724,8 +741,8 @@ a { color: inherit; }
   .hero-kat .hero-title { font-size: 1.9rem; }
   .hero-kat .hero-lead { margin-bottom: .4rem; }
 
-  /* --- Detailseiten: Buehne niedriger, Vorschau in einer Reihe ------------ */
-  .galerie-buehne img { max-height: 48vh; }
+  /* --- Detailseiten: Vorschau in einer Reihe ------------------------------ */
+  /* Die Buehne ist ueberall 4:3, hier bleibt dafuer nichts zu tun. */
   .galerie-reihe {
     flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
     margin-inline: calc(clamp(1.1rem, 4vw, 2rem) * -1);

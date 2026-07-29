@@ -1,3 +1,14 @@
 node_modules/
 .gate-password
 .DS_Store
+
+# Unverschluesselte Vorschauseiten. Sie entstehen beim Pruefen im Browser und
+# duerfen nie nach GitHub — deploy.sh nimmt mit "git add -A" sonst alles mit,
+# und die Seiten waeren ohne Passwort abrufbar.
+docs/_v_*.html
+
+# Konfliktkopien von iCloud ("index 2.html"). Das Projekt liegt unter
+# ~/Documents und wird synchronisiert; eine solche Kopie hatte schon eine
+# Git-Referenz beschaedigt.
+* 2
+* 2.*
