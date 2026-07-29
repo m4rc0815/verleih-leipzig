@@ -200,6 +200,46 @@ Nach der ersten Auslieferung kamen vier Punkte dazu:
 8. **Kurzer Browser-Titel.** `SITE.seitentitel` (unter 60 Zeichen) für den
    Tab, `SITE.tagline` weiterhin für Fußzeile und Meta-Beschreibung.
 
+## Einheitliches Bildformat (29.07.2026)
+
+Marc: „die bilder auf der homepage haben alle ein leicht unterschiedliches
+Format und größe." Die Messung zeigte, dass die Kachelrahmen bereits alle
+251 × 251 px maßen — ungleich war, was darin passierte.
+
+| | vorher | nachher |
+|---|---|---|
+| Kachelbilder | 8 Pixelmaße, Verhältnis 0,56–1,44 | alle 500 × 500 |
+| sichtbarer Bildanteil | 56 % bis 100 %, im Schnitt 75 % | überall gleich |
+| Kachelhöhe | 373 px oder 392 px, je nach Titel | überall 373 px |
+| Galeriebühne | Höhe folgte dem Bild | fest 4:3, höchstens 70 vh |
+
+9. **Kachelbilder fest quadratisch.** 40 der 50 Aufnahmen sind hochkant. Die
+   Kachel behielt bisher das Verhältnis des Originals, zugeschnitten hat erst
+   das CSS — und zwar immer oben ansetzend. `erzeugeVarianten` schneidet jetzt
+   selbst auf 500 × 500 und sucht dabei den Bildbereich mit den meisten Kanten,
+   also den Gegenstand. Dieselbe Behandlung wie bei den Kategorie-Kacheln. Der
+   kürzeste Bildrand aller Originale misst 556 px, es wird also nie
+   hochgerechnet. Von Marc am 29.07. bestätigt: formatfüllend, nicht das ganze
+   Foto auf grauem Grund.
+10. **Titel überall zweizeilig.** Die Begrenzung galt bisher nur unter 700 px.
+    Zusammen mit `min-height` sind alle Kacheln exakt gleich hoch, und die
+    Preise liegen innerhalb einer Reihe auf einer Linie.
+11. **Galeriebühne mit fester Höhe.** Bei 23 der 48 mehrbildrigen Anzeigen
+    wechseln Hoch- und Querformat; beim Weiterklicken sprang der halbe
+    Seiteninhalt. Kein `display: grid` am Kasten: darin gilt seine Höhe als
+    unbestimmt, `height: 100 %` am Bild fiele auf `auto` zurück, und das Bild
+    liefe unten heraus. `max-height: 70vh` kappt auf hohen Bildschirmen auch
+    die Breite, deshalb sitzt der Kasten mittig.
+12. **Kategorie-Kacheln bleiben 3:2.** Sie stehen als Reihe nebeneinander und
+    dienen der Navigation. Als Quadrate wären sie rund 120 px höher und
+    schöben die Angebote nach unten. Von Marc so entschieden.
+
+Nebenbei aufgefallen: In `docs/` lagen unverschlüsselte Vorschauseiten
+(`_v_*.html`) und iCloud-Konfliktkopien („index 2.html"), eine davon hatte
+`.git/refs/remotes/origin/main` beschädigt. `deploy.sh` arbeitet mit
+`git add -A` und hätte die Vorschauseiten ohne Passwortschutz veröffentlicht.
+Beides steht jetzt in `.gitignore`; auf GitHub war nie etwas davon (404).
+
 ## Offen
 
 - Roberts Porträtfoto für `ROBERT.bild`.
