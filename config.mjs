@@ -14,6 +14,16 @@ export const SITE = {
   baseUrl: "https://m4rc0815.github.io/verleih-leipzig/",
   betreiber: "Robert Kipf",
   ort: "Leipzig",
+  // Die vier Bilder neben der Ueberschrift. Bewusst aus vier verschiedenen
+  // Kategorien, damit oben sofort sichtbar wird, wie breit das Angebot ist.
+  // Steht hier ein unbekannter Slug, ruecken einfach die ersten Anzeigen mit
+  // Bild nach. Wer tauschen will, aendert eine Zeile.
+  heroBilder: [
+    "15-bierzeltgarnituren-mieten-mit-lieferservice-biertisch-gar-2799184091",
+    "huepfburg-mieten-tuev-geprueft-mit-lieferservice-rechnung-2807492142",
+    "treppensteiger-sackkarre-mieten-mit-rechnung-lieferservice-2799118052",
+    "polaroid-kamera-mieten-sofortbildkamera-mit-lieferservice-3225566560",
+  ],
 };
 
 // --- Passwortschutz waehrend der Bauphase ----------------------------------

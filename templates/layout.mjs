@@ -196,9 +196,33 @@ function handyBalken(extra = "") {
 
 // Bewusst ohne Stueckzahl: der Bestand waechst, und eine feste Zahl im
 // Aushaengeschild wirkt kleiner, als das Angebot tatsaechlich ist.
-export function startHero(kontakt = {}) {
+// Die Bildwand rechts neben dem Titel. Drei von vier untersuchten
+// Verleih-Seiten zeigen oben ein grossformatiges Foto, meist mit dunklem
+// Schleier darunter. Robert hat kein Werbefoto, dafuer 283 eigene Aufnahmen —
+// vier davon nebeneinander sagen sofort, worum es geht. Sie sind bereits als
+// 500er Quadrate vorhanden, es entsteht also keine neue Bilddatei.
+function heroBildwand(anzeigen, relRoot = "") {
+  const gewaehlt = (cfg.SITE.heroBilder || [])
+    .map((slug) => (anzeigen || []).find((a) => a.slug === slug && (a.bilder || []).length))
+    .filter(Boolean);
+  const auswahl = (gewaehlt.length ? gewaehlt : (anzeigen || []).filter((a) => (a.bilder || []).length))
+    .slice(0, 4);
+  if (!auswahl.length) return "";
+  return `<div class="hero-bildwand nur-breit" aria-hidden="true">
+      ${auswahl
+        .map(
+          (a) =>
+            `<img class="hero-bild" src="${relRoot}bilder/${a.slug}/${webpName(a.bilder[0], true)}" alt="" width="500" height="500">`
+        )
+        .join("\n      ")}
+    </div>`;
+}
+
+export function startHero(kontakt = {}, anzeigen = null) {
+  const wand = anzeigen ? heroBildwand(anzeigen) : "";
   return `<section class="hero hero-home">
-  <div class="container">
+  <div class="container${wand ? " hero-zweispaltig" : ""}">
+   <div class="hero-text">
     <p class="eyebrow">${esc(cfg.SITE.projectName)} · Südvorstadt</p>
     <h1 class="hero-title hero-title-xl">Mieten statt kaufen.</h1>
     <p class="hero-lead nur-breit">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Ich liefere, hole wieder ab und schreibe eine Rechnung. Kaution verlange ich keine.</p>
@@ -210,6 +234,8 @@ export function startHero(kontakt = {}) {
       <a class="btn" href="#angebote">${chev} Alle Angebote ansehen</a>
       ${kontakt.telefon ? `<a class="btn btn-ghost" href="${telHref(kontakt.telefon)}">${chev} ${esc(kontakt.telefon)}</a>` : ""}
     </div>
+   </div>
+   ${wand}
   </div>
 </section>`;
 }
@@ -366,6 +392,33 @@ function angebotsGitter(liste, relRoot = "") {
     <p id="f-leer" hidden>Keine Angebote gefunden.</p>`;
 }
 
+// Die Angebote der Startseite nach Kategorien gegliedert, mit wechselnder
+// Flaeche. Vorher lief die Liste 5507 px am Stueck — 70 % der Seitenlaenge
+// ohne jeden Halt. Der Wechsel steckt als Klasse im Markup und nicht in einer
+// nth-child-Regel: sobald der Filter einen Block leert, verrutschte die
+// Zaehlung sonst und zwei gleiche Flaechen stiessen aneinander.
+function angebotsBloecke(anzeigen, relRoot = "") {
+  let sichtbar = 0;
+  const bloecke = KATEGORIEN.map((kat) => {
+    const treffer = anzeigen.filter((a) => a.kategorie === kat);
+    if (!treffer.length) return "";
+    const weiss = sichtbar++ % 2 === 1;
+    return `<section class="angebot-block${weiss ? " ist-weiss" : ""}" data-block="${esc(kat)}">
+    <div class="container">
+      <div class="block-kopf">
+        <h3 class="block-titel">${esc(kat)}</h3>
+        <a class="block-link" href="${kategoriePfad(kat, relRoot)}">Alle ${treffer.length} ansehen</a>
+      </div>
+      <div class="angebot-grid">
+        ${treffer.map((a) => kachel(a, relRoot)).join("\n        ")}
+      </div>
+    </div>
+  </section>`;
+  });
+  return `${bloecke.join("\n")}
+  <div class="container"><p id="f-leer" hidden>Keine Angebote gefunden.</p></div>`;
+}
+
 export function startSeite(anzeigen, konfig) {
   const kategorien = kategorieBand(anzeigen, konfig.KATEGORIE_MOTIVE, "");
 
@@ -374,12 +427,12 @@ export function startSeite(anzeigen, konfig) {
     <p class="eyebrow">Der ganze Bestand</p>
     <h2 class="band-title">Alle Angebote</h2>
     ${filterleiste(true)}
-    ${angebotsGitter(anzeigen, "")}
   </div>
+  ${angebotsBloecke(anzeigen, "")}
 </section>`;
 
   return {
-    hero: startHero(konfig.KONTAKT),
+    hero: startHero(konfig.KONTAKT, anzeigen),
     content: [
       zusagenBand(konfig.ZUSAGEN),
       kategorien.html,

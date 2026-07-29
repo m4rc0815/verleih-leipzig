@@ -100,6 +100,28 @@ a { color: inherit; }
 .hero-meta { color: var(--ink-soft); font-size: 1.05rem; margin: 0 0 1rem; }
 .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
 .hero-stamp { font: 600 .8rem "DM Sans", sans-serif; color: var(--ink-soft); margin: 0; }
+
+/* --- Bildwand im Kopf ------------------------------------------------------ */
+/* Drei von vier untersuchten Verleih-Seiten zeigen oben ein großes Foto. Statt
+   einer Fototapete stehen hier vier von Roberts eigenen Motiven: sie sagen
+   sofort, worum es geht, und sind als 500er Quadrate längst vorhanden. */
+.hero-zweispaltig {
+  display: grid; grid-template-columns: 1fr minmax(280px, 400px);
+  gap: clamp(2rem, 5vw, 4rem); align-items: center;
+}
+.hero-bildwand {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .7rem;
+}
+.hero-bild {
+  /* height: auto ist nötig: ohne sie zieht der Browser die Höhe aus dem
+     height-Attribut des Bildes (500) und das Seitenverhältnis greift nicht. */
+  width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; display: block;
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+/* Leicht versetzt statt streng im Raster — sonst sieht die Wand aus wie eine
+   zweite Kachelgalerie direkt über der echten. */
+.hero-bildwand .hero-bild:nth-child(odd) { transform: translateY(-.8rem); }
+.hero-bildwand .hero-bild:nth-child(even) { transform: translateY(.8rem); }
 .hero-detail { padding-bottom: 1.6rem; border-bottom: 1px solid var(--line); }
 .backlink { margin: .4rem 0 0; }
 .backlink a { font: 600 .9rem "DM Sans", sans-serif; color: var(--ink-soft); text-decoration: none; }
@@ -399,6 +421,28 @@ a { color: inherit; }
   gap: 1.1rem;
   margin: 1.5rem 0 3rem;
 }
+
+/* --- Kategorieblöcke der Startseite --------------------------------------- */
+/* Der Bestand lief vorher 5507 px am Stück, 70 % der Seite ohne Flächenwechsel.
+   Jeder Block trägt seine Fläche als Klasse, damit der Wechsel auch dann hält,
+   wenn der Filter einen Block wegnimmt. */
+.angebot-block { padding: .4rem 0 0; }
+.angebot-block[hidden] { display: none; }
+.angebot-block.ist-weiss { background: var(--card); }
+.angebot-block.ist-weiss .angebot-card {
+  /* Weiße Karte auf weißem Grund braucht eine Kante, sonst zerfließt sie. */
+  border: 1px solid var(--line);
+}
+.block-kopf {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; padding-top: 2.2rem;
+  border-top: 1px solid var(--line);
+}
+.angebot-block:first-of-type .block-kopf { border-top: 0; padding-top: .6rem; }
+.block-titel { font-size: 1.35rem; margin: 0; }
+.block-link { font-size: .88rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+.block-link:hover { text-decoration: underline; }
+.angebot-block .angebot-grid { margin: 1.1rem 0 2.4rem; }
 .angebot-card {
   display: flex; flex-direction: column;
   background: var(--card); border-radius: var(--radius);
@@ -608,6 +652,11 @@ a { color: inherit; }
 @media (max-width: 700px) {
   .nur-breit { display: none; }
   .nur-schmal { display: block; }
+
+  /* Die Bildwand entfällt hier, das Raster für sie muss also auch weg: sonst
+     hält die leere zweite Spalte ihre Mindestbreite von 280 px und quetscht
+     den Text daneben in die Höhe. Gemessen: 552 px Kopf statt 436. */
+  .hero-zweispaltig { display: block; }
 
   /* --- Reihenfolge: die Vorstellung wandert unter die Angebote ------------
      Nur die Anzeige wird umsortiert, im Markup bleibt alles an seinem Platz.

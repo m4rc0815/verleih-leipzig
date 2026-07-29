@@ -6,6 +6,7 @@ import {
   robertBlock,
   kontaktBand,
   startHero,
+  startSeite,
 } from "../templates/layout.mjs";
 import * as cfg from "../config.mjs";
 
@@ -112,6 +113,50 @@ test("der Kopf nennt bewusst keine Stueckzahl", () => {
   assert.doesNotMatch(h, /\d+ Sachen/);
   assert.match(h, /Bierzeltgarnituren/, "statt einer Menge stehen Beispiele da");
   assert.match(h, /href="#angebote"/);
+});
+
+test("die Angebote stehen in Kategorieblöcken statt in einer Liste", () => {
+  // Gemessen: der Angebotsblock lief 5507 px am Stück, 70 % der Seitenlänge
+  // ohne einen einzigen Flächenwechsel. Zum Vergleich wechselt Boels als
+  // größter Vermieter sechsmal auf einer kürzeren Seite.
+  const s = startSeite(ANZEIGEN, {
+    KATEGORIE_MOTIVE: {}, KONTAKT: { telefon: "0176 1" },
+    ZUSAGEN: [], ROBERT: { name: "R", initialen: "R", bild: "", absaetze: [] },
+  });
+  const bloecke = s.content.match(/<section class="angebot-block[^"]*"/g) || [];
+  assert.equal(bloecke.length, 2, "je ein Block für Party & Feiern und Umzug & Transport");
+  assert.match(s.content, /<h3 class="block-titel">Party &amp; Feiern<\/h3>/);
+  assert.match(s.content, /href="k\/umzug-transport\/index\.html"/, "Block verlinkt seine Kategorieseite");
+  // Der Wechsel steht im Markup, nicht im CSS: nth-child verrutscht, sobald
+  // ein Block leer ist und wegfällt.
+  assert.match(s.content, /angebot-block ist-weiss/, "kein Flächenwechsel zwischen den Blöcken");
+});
+
+test("jede Kachel bleibt genau einmal in der Liste", () => {
+  const s = startSeite(ANZEIGEN, {
+    KATEGORIE_MOTIVE: {}, KONTAKT: {}, ZUSAGEN: [],
+    ROBERT: { name: "R", initialen: "R", bild: "", absaetze: [] },
+  });
+  const karten = s.content.match(/class="angebot-card"/g) || [];
+  assert.equal(karten.length, ANZEIGEN.length, "keine Kachel doppelt, keine verloren");
+  const gitter = s.content.match(/class="angebot-grid"/g) || [];
+  assert.equal(gitter.length, 2, "ein Gitter je Block");
+});
+
+test("der Kopf zeigt eine Bildwand aus vorhandenen Kachelbildern", () => {
+  // Drei von vier untersuchten Verleih-Seiten haben oben ein großes Foto.
+  // Robert hat kein Werbefoto, also stehen dort vier seiner eigenen Motive.
+  const h = startHero({ telefon: "0176 1" }, ANZEIGEN);
+  const bilder = h.match(/<img[^>]*class="hero-bild"/g) || [];
+  assert.equal(bilder.length, 3, "so viele Anzeigen hat die Testliste");
+  assert.match(h, /bilder\/a-1\/bild_01-k\.webp/, "nutzt die quadratische Kachelfassung");
+  assert.doesNotMatch(h, /loading="lazy"/, "die Bildwand steht ganz oben");
+});
+
+test("ohne Anzeigen bleibt die Bildwand weg", () => {
+  const h = startHero({ telefon: "0176 1" });
+  assert.doesNotMatch(h, /hero-bildwand/);
+  assert.match(h, /Mieten statt kaufen/, "der Rest des Kopfes steht trotzdem");
 });
 
 test("der Browser-Titel der Startseite bleibt kurz genug", () => {

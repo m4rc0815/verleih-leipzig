@@ -2,9 +2,15 @@
 // Nachladen. Laeuft auf der Startseite (mit Kategorieknoepfen) und auf den
 // Kategorieseiten (ohne — dort ist die Kategorie durch die Seite gesetzt).
 (function () {
-  var grid = document.getElementById("angebot-grid");
-  if (!grid) return;
-  var karten = Array.prototype.slice.call(grid.querySelectorAll(".angebot-card"));
+  // Die Startseite hat ein Gitter je Kategorieblock, die Kategorieseiten genau
+  // eines. Beides laeuft durch dieselbe Logik.
+  var gitter = Array.prototype.slice.call(document.querySelectorAll(".angebot-grid"));
+  if (!gitter.length) return;
+  var bloecke = Array.prototype.slice.call(document.querySelectorAll(".angebot-block"));
+  var karten = [];
+  gitter.forEach(function (g) {
+    karten = karten.concat(Array.prototype.slice.call(g.querySelectorAll(".angebot-card")));
+  });
   var knoepfe = Array.prototype.slice.call(document.querySelectorAll(".f-kat"));
   var sortierung = document.getElementById("f-sort");
   var zaehler = document.getElementById("f-zaehler");
@@ -36,21 +42,31 @@
     });
 
     var art = sortierung ? sortierung.value : "titel";
-    karten
-      .slice()
-      .sort(function (a, b) {
-        if (art === "preis-auf" || art === "preis-ab") {
-          // Angebote ohne Preis ("VB") haben einen leeren Wert und stehen
-          // immer hinten — auch beim absteigenden Sortieren.
-          var pa = a.dataset.preis, pb = b.dataset.preis;
-          if (!pa || !pb) return !pa && !pb ? 0 : (pa ? -1 : 1);
-          return art === "preis-auf"
-            ? parseInt(pa, 10) - parseInt(pb, 10)
-            : parseInt(pb, 10) - parseInt(pa, 10);
-        }
-        return a.dataset.titel.localeCompare(b.dataset.titel, "de");
-      })
-      .forEach(function (k) { grid.appendChild(k); });
+    function reihenfolge(a, b) {
+      if (art === "preis-auf" || art === "preis-ab") {
+        // Angebote ohne Preis ("VB") haben einen leeren Wert und stehen
+        // immer hinten — auch beim absteigenden Sortieren.
+        var pa = a.dataset.preis, pb = b.dataset.preis;
+        if (!pa || !pb) return !pa && !pb ? 0 : (pa ? -1 : 1);
+        return art === "preis-auf"
+          ? parseInt(pa, 10) - parseInt(pb, 10)
+          : parseInt(pb, 10) - parseInt(pa, 10);
+      }
+      return a.dataset.titel.localeCompare(b.dataset.titel, "de");
+    }
+    // Sortiert wird innerhalb jedes Blocks. Ueber die Blockgrenze hinweg zu
+    // sortieren wuerde die Gliederung nach Kategorien aufloesen.
+    gitter.forEach(function (g) {
+      Array.prototype.slice
+        .call(g.querySelectorAll(".angebot-card"))
+        .sort(reihenfolge)
+        .forEach(function (k) { g.appendChild(k); });
+    });
+
+    // Ein Block ohne sichtbare Kachel verschwindet mitsamt seiner Ueberschrift.
+    bloecke.forEach(function (b) {
+      b.hidden = !b.querySelector(".angebot-card:not([hidden])");
+    });
 
     if (zaehler) zaehler.textContent = sichtbar + " von " + karten.length + " Angeboten";
     if (leer) leer.hidden = sichtbar !== 0;

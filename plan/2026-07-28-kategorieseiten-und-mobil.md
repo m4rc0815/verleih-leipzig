@@ -240,9 +240,49 @@ Nebenbei aufgefallen: In `docs/` lagen unverschlüsselte Vorschauseiten
 `git add -A` und hätte die Vorschauseiten ohne Passwortschutz veröffentlicht.
 Beides steht jetzt in `.gitignore`; auf GitHub war nie etwas davon (404).
 
+## Gliederung und Bildwand (29.07.2026)
+
+Grundlage ist eine Messung von vier Wettbewerbern im Browser
+([partyverleih-leipzig.de](https://www.partyverleih-leipzig.de/),
+[eventverleih-leipzig.de](https://www.eventverleih-leipzig.de/home/),
+[boels.com](https://www.boels.com/de-de/), [erento.com](https://www.erento.com/)).
+Befund: Keiner nutzt Farbverläufe, keiner nutzt Muster. Drei von vier zeigen
+oben ein großformatiges Foto, alle wechseln die Fläche mehrfach — Boels als
+größter Vermieter sechsmal auf einer kürzeren Seite als Roberts.
+
+13. **Angebote nach Kategorien gegliedert.** Der Bestand lief 5507 px am Stück,
+    70 % der Seitenlänge ohne Halt; die größte ununterbrochene Fläche misst
+    jetzt 2000 px. Jeder Block trägt Überschrift, Anzahl und einen Link auf
+    seine Kategorieseite. Der Flächenwechsel steht als Klasse `ist-weiss` im
+    Markup und nicht in einer `nth-child`-Regel: sobald der Filter einen Block
+    leert, verrutschte die Zählung sonst. Karten auf weißem Grund bekommen eine
+    Kontur, sonst zerfließen sie.
+14. **Filter arbeitet über mehrere Gitter.** `filter.js` sammelt die Karten aus
+    allen `.angebot-grid`, sortiert innerhalb jedes Blocks und blendet Blöcke
+    ohne sichtbare Karte samt Überschrift aus. Geprüft: Kategoriefilter (9 von
+    50, ein Block), Suche (5 von 50, ein Block), Suche ohne Treffer (0, Blöcke
+    weg, Leermeldung), Sortierung nach Preis innerhalb des Blocks. Die
+    Kategorieseiten mit ihrem einzelnen Gitter laufen unverändert.
+15. **Bildwand im Kopf.** Vier Motive aus vier Kategorien neben der
+    Überschrift, konfigurierbar über `SITE.heroBilder`, mit Rückfall auf die
+    ersten Anzeigen mit Bild. Kein neues Material: es sind die vorhandenen
+    500er Quadrate. Auf dem Handy entfällt sie — dort muss auch das zweispaltige
+    Raster abgeschaltet werden, sonst hält die leere Spalte ihre Mindestbreite
+    und treibt den Kopf von 329 auf 552 px.
+
+Bewusst nicht gemacht: Farbverläufe und Hintergrundmuster (kein einziger
+Wettbewerber nutzt sie) sowie die ganzseitige Fototapete wie bei
+eventverleih-leipzig.de — Roberts Aufnahmen sind Handyfotos in Innenräumen.
+
+Preis der Gliederung: Die Startseite ist von 7838 auf 9226 px gewachsen, das
+erste Angebot rückt auf dem Handy von 989 auf 1050 px.
+
 ## Offen
 
 - Roberts Porträtfoto für `ROBERT.bild`.
+- Die Kategorie steht jetzt doppelt: einmal als Blocküberschrift und einmal
+  klein auf jeder Kachel darunter. Eine Zeile CSS würde sie in den Kacheln
+  ausblenden — Marcs Entscheidung.
 - Die Prüfliste (`pruefliste.md`) vor dem Öffentlichgehen mit Robert durchgehen.
 - Die Datenschutzerklärung ist ein ungeprüfter Entwurf.
 - „Hochzeitsfotografie" steht unter Foto & Technik, ist aber eine Dienstleistung
