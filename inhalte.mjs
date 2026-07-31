@@ -22,6 +22,10 @@
 //                Solche Preise zaehlen nicht fuer den Ab-Preis der Kachel.
 //   preise     – nur noetig, wenn der Preis im Fliesstext steht und die
 //                Aufbereitung ihn deshalb nicht als Tabellenzeile erkennt.
+//                Achtung: friert die ganze Staffel ein.
+//   preisKorrektur – ersetzt einzelne Betraege, z. B. { "1. Tag": "40 €" }.
+//                Der Rest der Staffel kommt weiter aus der Anzeige. Trifft der
+//                Schluessel keine Zeile mehr, meldet es der Bau.
 //   art        – "verkauf", wenn der Artikel verkauft und nicht vermietet wird.
 //   hinweis    – Satz, der oben auf der Angebotsseite steht.
 //   offen      – Notiz fuer Robert. Erscheint NICHT auf der Seite, sondern im
@@ -113,9 +117,16 @@ export const ANZEIGEN = {
   // ═══ Party & Feiern ═════════════════════════════════════════════════════
   "xxl-profi-zapfanlage-mieten-hochzeit-feier-party-geburtstag-3172364445": {
     titel: "Zapfanlage XXL, beleuchtet",
+    // Der Anzeigentext nennt 50 € fuer den ersten Tag, das Preisfeld 40 €.
+    // Robert hat am 31.07.2026 bestaetigt: 40 € stimmt, der Text ist veraltet.
+    // Korrigiert wird nur diese eine Zeile — die uebrige Staffel kommt weiter
+    // aus der Anzeige und folgt automatisch, wenn Robert sie dort aendert.
+    preisKorrektur: { "1. Tag": "40 €" },
     offen:
-      "Preisfeld der Anzeige sagt 40 €, der Anzeigentext 50 € fuer den 1. Tag. " +
-      "Die Seite nimmt jetzt den Text. Bitte das Preisfeld bei Kleinanzeigen nachziehen.",
+      "Der Anzeigentext bei Kleinanzeigen sagt weiterhin 50 € fuer den 1. Tag, die " +
+      "Homepage zeigt die bestaetigten 40 €. Bitte den Anzeigentext nachziehen. " +
+      "Und pruefen, ob die Staffel dazu passt: Wochenende 95 € und Woche 140 € " +
+      "waren auf 50 € am ersten Tag gerechnet.",
   },
   "profi-nebelmaschine-mieten-inkl-led-beleuchtung-party-hochze-3443702693": {
     titel: "Nebelmaschine mit LED-Beleuchtung",

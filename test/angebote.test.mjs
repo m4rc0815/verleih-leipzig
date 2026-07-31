@@ -132,6 +132,28 @@ test("die Beschreibung bleibt auch bei sehr langen Saetzen kurz genug", () => {
   assert.ok(angebote[0].beschreibungssatz.length <= 160);
 });
 
+test("eine Preiskorrektur ersetzt nur ihre Zeile", () => {
+  const anzeigen = [anzeige("zapf", "Zapfanlage", "Preis 1. Tag: 50€\njeder weitere Tag: 20€\n1 Woche: 140€")];
+  const inhalte = { ANZEIGEN: { zapf: { preisKorrektur: { "1. Tag": "40 €" } } } };
+  const { angebote, warnungen } = baueAngebote(anzeigen, inhalte);
+  assert.deepEqual(
+    angebote[0].preise.map((p) => [p.was, p.betrag]),
+    [["1. Tag", "40 €"], ["Jeder weitere Tag", "20 €"], ["1 Woche", "140 €"]]
+  );
+  assert.equal(angebote[0].abPreisLabel, "ab 40 €");
+  assert.deepEqual(warnungen, []);
+});
+
+test("eine Preiskorrektur, die keine Zeile trifft, wird gemeldet", () => {
+  // Sonst steht wieder der alte Preis auf der Seite, ohne dass es auffaellt.
+  const anzeigen = [anzeige("zapf", "Zapfanlage", "Pro Veranstaltung: 50€")];
+  const inhalte = { ANZEIGEN: { zapf: { titel: "Zapfanlage", preisKorrektur: { "1. Tag": "40 €" } } } };
+  const { angebote, warnungen } = baueAngebote(anzeigen, inhalte);
+  assert.equal(angebote[0].preise[0].betrag, "50 €");
+  assert.equal(warnungen.length, 1);
+  assert.match(warnungen[0], /1\. Tag.*Zapfanlage/);
+});
+
 test("ein Verweis auf ein nicht vorhandenes Hauptangebot wird gemeldet", () => {
   const anzeigen = [anzeige("a", "A", "Pro Tag: 5€")];
   const inhalte = { ANZEIGEN: { a: { varianteVon: "gibt-es-nicht" } } };
