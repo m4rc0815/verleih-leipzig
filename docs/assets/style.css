@@ -3,6 +3,29 @@
    Warm · freundlich · Creme/Papier · runde Ecken · weiche Schatten
    ============================================================ */
 
+/* --- Schriften ---------------------------------------------------------
+   Liegen unter assets/fonts/ und werden von hier ausgeliefert. Wuerde die
+   Seite sie bei Google holen, ginge die IP jedes Besuchers an Google —
+   dafuer braeuchte es eine Einwilligung, und genau das wird bei
+   gewerblichen Seiten abgemahnt.
+
+   Beides sind veraenderliche Schriften (variable fonts): eine Datei deckt
+   den ganzen Bereich ab, deshalb steht im font-weight eine Spanne und
+   nicht eine Zahl. Vier Dateien fuer 400/500/600/700 waeren viermal
+   dieselbe Datei gewesen. Subset "latin" — ä, ö, ü und ß liegen darin.
+   Zusammen 57 KB.
+
+   Anderer Bereich noetig: Datei bei Google mit dem gewuenschten wght-Bereich
+   neu ziehen, nach assets/fonts/ legen, die Spanne hier anpassen. */
+@font-face {
+  font-family: "DM Sans"; font-style: normal; font-weight: 400 700;
+  font-display: swap; src: url(fonts/dm-sans.woff2) format("woff2");
+}
+@font-face {
+  font-family: "Figtree"; font-style: normal; font-weight: 700 800;
+  font-display: swap; src: url(fonts/figtree.woff2) format("woff2");
+}
+
 :root {
   --bg: #faf9f6;       /* Warmes Papierweiß */
   --ink: #1f1f1f;
@@ -544,6 +567,83 @@ a { color: inherit; }
   text-decoration: none; font-weight: 600;
 }
 .anfrage-btn:hover { background: var(--accent-dark); }
+
+/* Anfragewege am Ende der Angebotsseite. Der Anruf ist der Hauptknopf, die
+   anderen Wege stehen daneben, ohne ihm die Aufmerksamkeit zu nehmen. */
+.anfrage-reihe { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
+.anfrage-reihe .anfrage-btn { margin: 0; }
+.anfrage-btn-zweit {
+  background: transparent; color: var(--accent);
+  border: 1.5px solid var(--accent); font-weight: 600;
+}
+.anfrage-btn-zweit:hover { background: var(--yellow); color: var(--accent-dark); }
+.anfrage-block { margin-bottom: 3rem; }
+.prose-stand { color: var(--ink-soft); font-size: .85rem; margin-top: 2.5rem; }
+
+/* --- Bloecke der Angebotsseite -------------------------------------------
+   Preise, Ausfuehrungen, Daten und Konditionen standen frueher alle als
+   Fliesstext im Anzeigentext. Jeder Block hat jetzt seine eigene Form, damit
+   man findet, was man sucht, ohne den ganzen Text zu lesen. */
+.angebot-detail > section { margin: 2.4rem 0; }
+.angebot-detail > section > h2 {
+  font: 800 1.3rem/1.2 "Figtree", sans-serif; margin: 0 0 .9rem;
+}
+.angebot-hinweis {
+  background: var(--yellow); border-radius: var(--radius-sm);
+  padding: .8rem 1.1rem; margin: 0 0 1.2rem; font-size: .95rem;
+}
+.fakt-verkauf {
+  background: #fff4e5; border: 1px solid #f0c68a; border-radius: var(--radius-pill);
+  padding: .15rem .7rem; color: #8a5a00; font-weight: 600;
+}
+
+/* Preistabelle. Der Einstiegspreis steht oben und wird hervorgehoben; was
+   danach kommt (Pakete, Folgetage, Zubehoer), tritt zurueck. */
+.preis-tabelle { width: 100%; border-collapse: collapse; max-width: 34rem; }
+.preis-tabelle th, .preis-tabelle td {
+  text-align: left; padding: .6rem .2rem; border-bottom: 1px solid var(--line);
+  font-weight: 400;
+}
+.preis-tabelle td { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.preis-tabelle tr.preis-einstieg th, .preis-tabelle tr.preis-einstieg td {
+  font-weight: 700; font-size: 1.05rem;
+}
+.preis-tabelle tr.preis-einstieg td { color: var(--accent); }
+.preis-tabelle tr.preis-folge th, .preis-tabelle tr.preis-zusatz th,
+.preis-tabelle tr.preis-folge td, .preis-tabelle tr.preis-zusatz td { color: var(--ink-soft); }
+.preis-zusatz { display: block; font-size: .8rem; color: var(--ink-soft); }
+.preis-hinweis { font-size: .9rem; color: var(--ink-soft); margin: .7rem 0 0; }
+
+/* Ausfuehrungen desselben Artikels */
+.varianten-liste { list-style: none; padding: 0; margin: 0; display: grid; gap: .7rem; }
+.varianten-liste li {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: .9rem 1.1rem;
+}
+.variante-name { display: block; font-family: "Figtree", sans-serif; font-weight: 700; }
+.variante-preis { display: block; color: var(--accent); font-weight: 600; font-size: .95rem; margin-top: .1rem; }
+.variante-text { display: block; font-size: .9rem; color: var(--ink-soft); margin-top: .35rem; }
+
+/* Technische Angaben */
+.daten-liste { margin: 0; padding: 0; list-style: none; display: grid; gap: .35rem; max-width: 40rem; }
+.daten-liste li {
+  font-size: .93rem; padding-left: 1.1rem; position: relative; color: var(--ink-soft);
+}
+.daten-liste li::before { content: "·"; position: absolute; left: .3rem; color: var(--accent); font-weight: 700; }
+
+/* Lieferung, Pfand, Zahlung, Zeiten */
+.kondition-liste { margin: 0; display: grid; gap: .8rem; }
+.kondition { display: grid; grid-template-columns: 8rem 1fr; gap: .8rem; align-items: start; }
+.kondition dt { font-family: "Figtree", sans-serif; font-weight: 700; font-size: .95rem; }
+.kondition dd { margin: 0; font-size: .95rem; color: var(--ink-soft); }
+
+@media (max-width: 600px) {
+  .kondition { grid-template-columns: 1fr; gap: .15rem; }
+  .angebot-detail > section { margin: 1.8rem 0; }
+}
+
+/* Hinweis auf der Kachel, dass es mehrere Groessen gibt */
+.angebot-varianten { display: block; font-size: .78rem; color: var(--ink-soft); margin-top: .15rem; }
 
 /* --- Hinweis auf fehlende Pflichtangaben ---------------------------------- */
 .fehlt-hinweis { background: #fff4e5; border: 1px solid #f0c68a; border-radius: var(--radius-sm); padding: 1rem 1.2rem; margin: 1rem 0; }

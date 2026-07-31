@@ -46,6 +46,38 @@ export const ANZEIGEN_LINK = {
   label: "Auf Kleinanzeigen anfragen",
 };
 
+// --- Anfrage per E-Mail -----------------------------------------------------
+// Ein Verleih lebt vom Anruf, aber nicht jeder ruft an: Wer abends um elf plant,
+// schreibt lieber. Alle drei verglichenen Leipziger Verleiher haben einen
+// schriftlichen Weg, hier gab es bisher nur die Telefonnummer.
+//
+// Bewusst mailto und kein Formular: Eine Seite auf GitHub Pages kann selbst
+// keine Post verschicken, ein Formular braucht also einen fremden Dienst. Der
+// bekaeme die Daten aller Anfragenden zu sehen und muesste in die
+// Datenschutzerklaerung. Der Mailknopf oeffnet das Mailprogramm des Besuchers,
+// mit Betreff und Geruest schon ausgefuellt.
+//
+// WhatsApp waere der naechste Schritt (zwei der drei Wettbewerber haben es).
+// Dafuer muss Robert bestaetigen, dass er die Nummer geschaeftlich per WhatsApp
+// betreibt — deshalb steht es hier auf false und nicht schon an.
+export const ANFRAGE = {
+  mail: true,
+  whatsapp: false,
+  betreff: (titel) => `Anfrage: ${titel}`,
+  vorlage: (titel) =>
+    [
+      `Hallo Robert,`,
+      ``,
+      `ich möchte gerne mieten: ${titel}`,
+      ``,
+      `Zeitraum: `,
+      `Lieferung gewünscht: ja / nein`,
+      `Adresse: `,
+      ``,
+      `Viele Grüße`,
+    ].join("\n"),
+};
+
 // --- Kontakt & Impressum ---------------------------------------------------
 // Leer = die Seite zeigt an dieser Stelle einen deutlichen Hinweis, dass die
 // Angaben fehlen. Der Bau bricht ab, wenn GATE.enabled=false ist und diese
@@ -86,14 +118,26 @@ export const ROBERT = {
 
 // --- Zusagen-Leiste ---------------------------------------------------------
 // Alle vier stammen aus Roberts eigenen Anzeigentexten (Lieferservice 47/50,
-// Rechnung 48/50, Wochenende 39/50). "Ohne Kaution" war erschlossen, weil das
-// Wort in keiner einzigen Anzeige vorkommt; Robert hat es am 28.07.2026
-// bestaetigt, ebenso seinen Vorstellungstext und die Kategoriesaetze.
+// Rechnung 48/50, Wochenende 39/50).
+//
+// KORRIGIERT AM 30.07.2026 — zwei der vier Zusagen versprachen mehr, als die
+// Angebotsseiten halten:
+//
+//   "Ohne Kaution — keine Kaution und keine Unterlagen vorab": In 23 der 50
+//   Anzeigentexte steht "Pfand: Foto/Kopie Ausweis". Ein Pfand wird also sehr
+//   wohl verlangt, nur eben kein Geld. Als Werbung war der alte Satz
+//   angreifbar, und wer erst beim Abholen davon erfaehrt, aergert sich.
+//
+//   "Lieferservice — ich bringe die Sachen vorbei": Die Lieferung kostet laut
+//   den Anzeigentexten 40 € (bei Kartons 15–30 €). Die Zusage klang kostenlos.
+//
+// Beide sagen jetzt, was tatsaechlich gilt. Ein ehrlicher Vorteil bleibt es:
+// kein Geld hinterlegen zu muessen ist bei Verleihern nicht selbstverstaendlich.
 export const ZUSAGEN = [
-  { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe die Sachen vorbei und hole sie wieder ab." },
+  { icon: "lieferung", titel: "Lieferung auf Wunsch", text: "Gegen Aufpreis bringe ich die Sachen vorbei und hole sie wieder ab, jeden Tag des Jahres." },
   { icon: "beleg", titel: "Auf Rechnung", text: "Auch für Firmen und Vereine. Zahlen kannst du bar, per PayPal oder per Überweisung." },
   { icon: "kalender", titel: "7 Tage die Woche", text: "Ich bin von 7 bis 23 Uhr erreichbar, auch sonntags und feiertags." },
-  { icon: "schild", titel: "Ohne Kaution", text: "Ich verlange keine Kaution und keine Unterlagen vorab." },
+  { icon: "schild", titel: "Kein Geld als Pfand", text: "Meist genügt ein Foto oder eine Kopie des Ausweises. Bargeld hinterlegen musst du nicht." },
 ];
 
 // --- Einleitungssaetze der Kategorieseiten ---------------------------------

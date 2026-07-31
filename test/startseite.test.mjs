@@ -9,6 +9,7 @@ import {
   startSeite,
 } from "../templates/layout.mjs";
 import * as cfg from "../config.mjs";
+import * as inhalte from "../inhalte.mjs";
 
 const ZUSAGEN = [
   { icon: "lieferung", titel: "Lieferservice", text: "Ich bringe alles vorbei." },
@@ -178,6 +179,10 @@ test("kein Gedankenstrich in den Seitentexten", () => {
     kontaktBand(cfg.KONTAKT),
     ...Object.values(cfg.KATEGORIE_TEXTE),
     cfg.SITE.tagline,
+    // Auch die festen Saetze der Angebotsseiten, sonst gilt die Regel nur
+    // auf der Startseite und schleicht sich anderswo wieder ein.
+    ...Object.values(inhalte.KONDITIONEN).map((k) => k.text),
+    ...Object.values(inhalte.ANZEIGEN).map((a) => a.hinweis || ""),
   ].join("\n");
   // Gemeint ist der freistehende Strich als Satzzeichen (" — "), nicht der
   // Bis-Strich in "Mo–So" oder "7:00–23:00" — der ist korrekte Typografie.

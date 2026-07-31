@@ -7,8 +7,12 @@ node_modules/
 # und die Seiten waeren ohne Passwort abrufbar.
 docs/_v_*.html
 
-# Konfliktkopien von iCloud ("index 2.html"). Das Projekt liegt unter
-# ~/Documents und wird synchronisiert; eine solche Kopie hatte schon eine
+# Konfliktkopien von iCloud ("index 2.html", "bilder 3"). Das Projekt liegt
+# unter ~/Documents und wird synchronisiert; eine solche Kopie hatte schon eine
 # Git-Referenz beschaedigt.
-* 2
-* 2.*
+#
+# Das Muster deckt jetzt jede Zaehlung ab, nicht nur die 2: iCloud zaehlt bei
+# wiederholten Konflikten weiter hoch, und im docs/-Ordner lagen bereits
+# "a 3", "a 4", "bilder 3", "bilder 4", "k 3" und "k 4".
+* [0-9]
+* [0-9].*

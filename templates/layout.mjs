@@ -76,6 +76,21 @@ function fussNav(relRoot, active) {
 
 const chev = '<span class="chev" aria-hidden="true">›</span>';
 
+// Sucht zu einem Slug etwas mit Bildern — im Angebot selbst oder in seinen
+// Varianten.
+//
+// Wer in config.mjs ein Motiv aussucht, sucht nach dem schoensten Bild und
+// nicht danach, ob dieser Artikel gerade Hauptangebot oder Variante ist. Seit
+// die Ausfuehrungen zusammengefasst sind, waeren sonst gute Motive plötzlich
+// "nicht gefunden" — der Treppensteiger etwa, der zur Sackkarre gehoert.
+export function bildquelleFuer(slug, angebote) {
+  const mitBild = (x) => x && (x.bilder || []).length;
+  const haupt = (angebote || []).find((a) => a.slug === slug);
+  if (mitBild(haupt)) return haupt;
+  const variante = (angebote || []).flatMap((a) => a.varianten || []).find((v) => v.slug === slug);
+  return mitBild(variante) ? variante : null;
+}
+
 export function chevronLink(text, href) {
   if (href) return `<a class="chevron-link" href="${href}">${chev} ${esc(text)}</a>`;
   return `<span class="chevron-link">${chev} ${esc(text)}</span>`;
@@ -94,18 +109,36 @@ export function documentShell({
   bodyClass = "",
   aktiveKategorie = "",
   balkenExtra = "",
+  // Pfad dieser Seite unterhalb der Wurzel ("", "kontakt.html", "a/slug/") —
+  // gebraucht fuer die kanonische Adresse und og:url.
+  pfad = "",
+  beschreibung = "",
+  bildUrl = "",
+  strukturdaten = "",
 }) {
+  const basis = String(cfg.SITE.baseUrl || "").replace(/\/?$/, "/");
+  const adresse = basis + String(pfad).replace(/^\//, "");
+  const beschr = beschreibung || `${cfg.SITE.tagline} ${cfg.SITE.ort}`;
+
   return `<!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
-<meta name="description" content="${esc(cfg.SITE.tagline)} — ${esc(cfg.SITE.ort)}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="description" content="${esc(beschr)}">
+<link rel="canonical" href="${esc(adresse)}">
+<link rel="icon" href="${relRoot}assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${esc(cfg.SITE.projectName)}">
+<meta property="og:locale" content="de_DE">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(beschr)}">
+<meta property="og:url" content="${esc(adresse)}">
+${bildUrl ? `<meta property="og:image" content="${esc(basis + bildUrl)}">` : ""}
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="${relRoot}assets/style.css?v=${ASSET_VER}">
+${strukturdaten ? `<script type="application/ld+json">${strukturdaten}</script>` : ""}
 </head>
 <body class="${bodyClass}">
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -132,7 +165,7 @@ ${content}
     <nav class="footer-nav" aria-label="Footer">${fussNav(relRoot, active)}</nav>
     <div class="footer-meta">
       <p>${esc(cfg.SITE.betreiber)} · ${esc(cfg.SITE.ort)}</p>
-      <p><a href="${relRoot}datenschutz.html">Datenschutz</a></p>
+      <p><a href="${relRoot}agb.html">Mietbedingungen</a> · <a href="${relRoot}datenschutz.html">Datenschutz</a></p>
     </div>
   </div>
 </footer>
@@ -203,7 +236,7 @@ function handyBalken(extra = "") {
 // 500er Quadrate vorhanden, es entsteht also keine neue Bilddatei.
 function heroBildwand(anzeigen, relRoot = "") {
   const gewaehlt = (cfg.SITE.heroBilder || [])
-    .map((slug) => (anzeigen || []).find((a) => a.slug === slug && (a.bilder || []).length))
+    .map((slug) => bildquelleFuer(slug, anzeigen))
     .filter(Boolean);
   const auswahl = (gewaehlt.length ? gewaehlt : (anzeigen || []).filter((a) => (a.bilder || []).length))
     .slice(0, 4);
@@ -225,8 +258,8 @@ export function startHero(kontakt = {}, anzeigen = null) {
    <div class="hero-text">
     <p class="eyebrow">${esc(cfg.SITE.projectName)} · Südvorstadt</p>
     <h1 class="hero-title hero-title-xl">Mieten statt kaufen.</h1>
-    <p class="hero-lead nur-breit">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Ich liefere, hole wieder ab und schreibe eine Rechnung. Kaution verlange ich keine.</p>
-    <p class="hero-lead nur-schmal">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Ich liefere, hole ab und schreibe eine Rechnung.</p>
+    <p class="hero-lead nur-breit">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Auf Wunsch liefere ich und hole wieder ab, sieben Tage die Woche, gerne auf Rechnung.</p>
+    <p class="hero-lead nur-schmal">Bierzeltgarnituren, Sackkarren, Hüpfburgen, Beamer. Sieben Tage die Woche, gerne auf Rechnung.</p>
     <div class="hero-suche nur-schmal">
       <input type="search" id="f-suche-oben" class="js-suche" placeholder="Wonach suchst du?" aria-label="Angebote durchsuchen">
     </div>
@@ -278,11 +311,24 @@ export function kategorieBand(anzeigen, motive = {}, relRoot = "", opt = {}) {
     const treffer = anzeigen.filter((a) => a.kategorie === kat);
     if (!treffer.length) continue;
 
+    // Das Motiv darf auch eine Variante sein: gesucht wird nach dem schoensten
+    // Bild, nicht nach der Angebotsstruktur. Bei "Umzug & Transport" ist das
+    // der Treppensteiger im Garten — seit er zur Sackkarre gehoert, hat er
+    // keine eigene Kachel mehr, taugt als Motiv aber unveraendert.
     const gewuenscht = motive[kat];
-    let motiv = gewuenscht ? treffer.find((a) => a.slug === gewuenscht) : null;
-    if (gewuenscht && !motiv) fehlend.push(kat);
+    let motiv = null;
+    if (gewuenscht) {
+      const haupt = treffer.find((a) => a.slug === gewuenscht);
+      const alsVariante = treffer
+        .flatMap((a) => a.varianten || [])
+        .find((v) => v.slug === gewuenscht);
+      motiv = haupt || alsVariante || null;
+      if (!motiv) fehlend.push(kat);
+    }
     if (!motiv) motiv = treffer.find((a) => a.bilder && a.bilder.length);
 
+    // Die Kachel fuehrt immer zur Kategorieseite, das Bild darf trotzdem von
+    // einer Variante stammen.
     // Die Motivfassung ist fest 3:2 und auf den Gegenstand zugeschnitten —
     // anders als die quadratische Kachelfassung, die das CSS oben beschneiden
     // muesste.
@@ -503,44 +549,163 @@ export function kategorieSeite(kat, alleAnzeigen, konfig, relRoot = "../../") {
 // Die data-Attribute steuern Filter und Suche — die Werte sind bereits
 // kleingeschrieben, damit filter.js nicht jedes Mal umwandeln muss.
 export function kachel(a, relRoot = "") {
-  const bild = a.bilder.length
-    ? `${relRoot}bilder/${a.slug}/${webpName(a.bilder[0], true)}`
-    : "";
-  const suchtext = `${a.titel} ${a.kategorie} ${a.beschreibung}`.toLowerCase();
+  const bilder = a.bilder || [];
+  const varianten = a.varianten || [];
+  const bild = bilder.length ? `${relRoot}bilder/${a.slug}/${webpName(bilder[0], true)}` : "";
+
+  // Die Suche soll auch Varianten finden: wer "Instax" eingibt, meint die
+  // Sofortbildkamera, auch wenn die Variante keine eigene Kachel mehr hat.
+  const suchtext = [
+    a.titel,
+    a.anzeigenTitel, // die alten Kleinanzeigen-Worte bleiben auffindbar
+    a.kategorie,
+    ...varianten.map((v) => v.name),
+    ...(a.absaetze || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
   return `<a class="angebot-card" href="${relRoot}a/${a.slug}/index.html"
-   data-titel="${esc(a.titel.toLowerCase())}"
+   data-titel="${esc(String(a.titel).toLowerCase())}"
    data-kategorie="${esc(a.kategorie)}"
-   data-such="${esc(suchtext.slice(0, 400))}"
-   data-preis="${esc(preisZahl(a.preis))}">
+   data-such="${esc(suchtext.slice(0, 500))}"
+   data-preis="${esc(a.abPreisZahl ?? "")}">
   <div class="angebot-bild">
     ${bild ? `<img src="${esc(bild)}" alt="${esc(a.titel)}" loading="lazy" width="500" height="500">`
            : `<div class="angebot-kein-bild" aria-hidden="true">📦</div>`}
   </div>
   <div class="angebot-text">
     <h3 class="angebot-titel">${esc(a.titel)}</h3>
-    <span class="angebot-preis">${esc(a.preis || "auf Anfrage")}</span>
+    <span class="angebot-preis">${esc(a.abPreisLabel || "auf Anfrage")}</span>
+    ${varianten.length ? `<span class="angebot-varianten">${varianten.length + 1} Ausführungen</span>` : ""}
   </div>
 </a>`;
-}
-
-// Preis als Zahl fuer die Sortierung. "VB" und Leerwerte bekommen bewusst
-// KEINE Ersatzzahl: eine grosse Ersatzzahl wuerde sie beim absteigenden
-// Sortieren nach vorne holen. Der leere Wert sagt filter.js "kein Preis" —
-// diese Angebote stehen dann in beiden Richtungen hinten.
-export function preisZahl(preis) {
-  const m = String(preis || "").match(/(\d+)/);
-  return m ? m[1] : "";
 }
 
 // ---------------------------------------------------------------------------
 // Detailseite
 // ---------------------------------------------------------------------------
-// Grosses Bild mit Vorschaureihe darunter, danach der vollstaendige Anzeigentext.
-// Der Text wird unveraendert uebernommen — nur Zeilenumbrueche werden zu Absaetzen.
-export function detailSeite(a, relRoot = "../../", opt = {}) {
-  const bilder = a.bilder.map((b) => ({
-    gross: `${relRoot}bilder/${a.slug}/${webpName(b)}`,
-    klein: `${relRoot}bilder/${a.slug}/${webpName(b, true)}`,
+// Grosses Bild mit Vorschaureihe, dann Beschreibung, Preistabelle, technische
+// Daten und die Konditionen.
+//
+// Frueher stand hier der Anzeigentext am Stueck — mit Begruessung, Preisen im
+// Fliesstext, Verweisen auf andere Anzeigen und Grussformel. Jetzt hat jede
+// dieser Angaben ihren Platz, und wer nur wissen will, was es kostet, findet
+// eine Tabelle statt eines Absatzes.
+
+// Preistabelle. Folgetage und Zusaetze stehen unten, damit oben die Preise
+// stehen, nach denen tatsaechlich gefragt wird.
+function preisTabelle(preise, preishinweis) {
+  if (!preise || !preise.length) return "";
+  const reihenfolge = { einstieg: 0, paket: 1, folge: 2, zusatz: 3 };
+  const sortiert = [...preise].sort(
+    (a, b) => (reihenfolge[a.rolle] ?? 1) - (reihenfolge[b.rolle] ?? 1)
+  );
+  return `<section class="preis-block">
+    <h2>Was es kostet</h2>
+    <table class="preis-tabelle">
+      <tbody>
+      ${sortiert
+        .map(
+          (p) => `<tr class="preis-${esc(p.rolle || "einstieg")}">
+        <th scope="row">${esc(p.was)}${p.zusatz ? ` <span class="preis-zusatz">${esc(p.zusatz)}</span>` : ""}</th>
+        <td>${esc(p.betrag)}</td>
+      </tr>`
+        )
+        .join("\n      ")}
+      </tbody>
+    </table>
+    ${preishinweis ? `<p class="preis-hinweis">${esc(preishinweis)}</p>` : ""}
+  </section>`;
+}
+
+// Die Ausfuehrungen eines Angebots. Sie hatten frueher je eine eigene Anzeige
+// und damit eine eigene Kachel — vier Bierzeltgarnituren nebeneinander sahen
+// aus wie vier Angebote, waren aber Groessen desselben Artikels.
+function variantenBlock(alle) {
+  if (!alle || !alle.length) return "";
+  // Ausfuehrungen und Zubehoer getrennt: das Geblaese ist keine Groesse der
+  // Huepfburg, sondern etwas, das man dazu mietet.
+  return [
+    variantenListe(alle.filter((v) => !v.zubehoer), "Ausführungen"),
+    variantenListe(alle.filter((v) => v.zubehoer), "Dazu mieten"),
+  ].join("\n");
+}
+
+function variantenListe(varianten, titel) {
+  if (!varianten.length) return "";
+  return `<section class="varianten-block">
+    <h2>${esc(titel)}</h2>
+    <ul class="varianten-liste">
+      ${varianten
+        .map((v) => {
+          const preis = v.preise.find((p) => (p.rolle || "einstieg") === "einstieg") || v.preise[0];
+          return `<li>
+        <span class="variante-name">${esc(v.name)}</span>
+        ${preis ? `<span class="variante-preis">${esc(preis.was)}: ${esc(preis.betrag)}</span>` : ""}
+        ${v.beschreibung ? `<span class="variante-text">${esc(v.beschreibung)}</span>` : ""}
+      </li>`;
+        })
+        .join("\n      ")}
+    </ul>
+  </section>`;
+}
+
+function datenBlock(daten) {
+  if (!daten || !daten.length) return "";
+  return `<section class="daten-block">
+    <h2>Daten und Lieferumfang</h2>
+    <ul class="daten-liste">
+      ${daten.map((d) => `<li>${esc(d)}</li>`).join("\n      ")}
+    </ul>
+  </section>`;
+}
+
+// Lieferung, Pfand, Zahlung, Zeiten. Was das Angebot selbst sagt, hat Vorrang
+// vor der allgemeinen Regel — sonst stuende bei den Kartons die 40-€-Pauschale,
+// obwohl sie dort 15 € kostet.
+function konditionsBlock(a, konditionen = {}) {
+  const zeile = (titel, text) =>
+    text ? `<div class="kondition"><dt>${esc(titel)}</dt><dd>${esc(text)}</dd></div>` : "";
+
+  return `<section class="kondition-block">
+    <h2>Gut zu wissen</h2>
+    <dl class="kondition-liste">
+      ${zeile("Lieferung", a.lieferung.length ? a.lieferung.join(" · ") : (konditionen.lieferung || {}).text)}
+      ${zeile("Pfand", a.pfand === "kein Pfand" ? "Für dieses Angebot verlange ich kein Pfand." : a.pfand ? `${a.pfand}. Bargeld hinterlegen musst du nicht.` : (konditionen.pfand || {}).text)}
+      ${zeile("Zahlung", a.zahlung ? `${a.zahlung}. Auf Rechnung auch für Firmen und Vereine.` : (konditionen.zahlung || {}).text)}
+      ${zeile("Abholung", (konditionen.zeiten || {}).text)}
+    </dl>
+  </section>`;
+}
+
+export function detailSeite(angebot, relRoot = "../../", opt = {}) {
+  // Fehlt ein Feld, faellt nur der zugehoerige Block weg statt der ganzen Seite.
+  const a = {
+    bilder: [], varianten: [], preise: [], absaetze: [], daten: [],
+    lieferung: [], pfand: null, zahlung: null, preishinweis: null,
+    hinweis: "", art: "miete", abPreisLabel: "auf Anfrage",
+    ...angebot,
+  };
+
+  // Die Bilder der Varianten gehoeren in dieselbe Galerie: sie zeigen denselben
+  // Artikel in anderer Groesse, und ihre eigenen Seiten gibt es nicht mehr.
+  //
+  // Aber nicht alle: Bei der Bierzeltgarnitur kamen so 35 Vorschaubilder
+  // zusammen, dreizehn eigene plus die von drei Ausfuehrungen. Zwei je
+  // Ausfuehrung zeigen, worum es geht; der Rest ist Wiederholung derselben
+  // Bank aus anderem Winkel.
+  const BILDER_JE_VARIANTE = 2;
+  const alleBilder = [
+    ...a.bilder.map((b) => ({ slug: a.slug, datei: b })),
+    ...a.varianten.flatMap((v) =>
+      (v.bilder || []).slice(0, BILDER_JE_VARIANTE).map((b) => ({ slug: v.slug, datei: b }))
+    ),
+  ];
+  const bilder = alleBilder.map(({ slug, datei }) => ({
+    gross: `${relRoot}bilder/${slug}/${webpName(datei)}`,
+    klein: `${relRoot}bilder/${slug}/${webpName(datei, true)}`,
   }));
 
   const galerie = bilder.length
@@ -557,13 +722,33 @@ export function detailSeite(a, relRoot = "../../", opt = {}) {
 </div>`
     : "";
 
-  const absaetze = String(a.beschreibung)
-    .split(/\n{2,}/)
-    .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
-    .join("\n");
+  const beschreibung = a.absaetze.length
+    ? `<div class="angebot-beschreibung prose">${a.absaetze.map((p) => `<p>${esc(p)}</p>`).join("\n")}</div>`
+    : "";
 
-  const anfrage = opt.anzeigenLink
-    ? `<a class="anfrage-btn" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(opt.anzeigenLinkLabel)}</a>`
+  // Anfragewege: anrufen, schreiben, notfalls ueber die Anzeige. Der Anruf
+  // steht zuerst — er fuehrt am schnellsten zum Ergebnis und ist der Weg, den
+  // Robert selbst bevorzugt.
+  const kontakt = opt.kontakt || {};
+  const anfrageKnoepfe = [
+    kontakt.telefon
+      ? `<a class="anfrage-btn" href="${telHref(kontakt.telefon)}">${esc(kontakt.telefon)} anrufen</a>`
+      : "",
+    opt.anfrage && opt.anfrage.mail && kontakt.email
+      ? `<a class="anfrage-btn anfrage-btn-zweit" href="mailto:${esc(kontakt.email)}?subject=${encodeURIComponent(
+          opt.anfrage.betreff(a.titel)
+        )}&body=${encodeURIComponent(opt.anfrage.vorlage(a.titel))}">Per E-Mail anfragen</a>`
+      : "",
+    opt.anzeigenLink
+      ? `<a class="anfrage-btn anfrage-btn-zweit" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(opt.anzeigenLinkLabel)}</a>`
+      : "",
+  ].filter(Boolean);
+
+  const anfrage = anfrageKnoepfe.length
+    ? `<section class="anfrage-block">
+    <h2>Interesse?</h2>
+    <div class="anfrage-reihe">${anfrageKnoepfe.join("\n      ")}</div>
+  </section>`
     : "";
 
   return `<article class="angebot-detail container">
@@ -571,13 +756,18 @@ export function detailSeite(a, relRoot = "../../", opt = {}) {
   <header class="angebot-kopf">
     <h1>${esc(a.titel)}</h1>
     <div class="angebot-fakten">
-      <span class="fakt-preis">${esc(a.preis || "auf Anfrage")}</span>
-      ${a.ort ? `<span class="fakt">${esc(a.ort)}</span>` : ""}
-      ${a.datum ? `<span class="fakt">${esc(a.datum)}</span>` : ""}
+      <span class="fakt-preis">${esc(a.abPreisLabel)}</span>
+      ${a.art === "verkauf" ? `<span class="fakt fakt-verkauf">Verkauf, keine Miete</span>` : ""}
+      ${a.varianten.length ? `<span class="fakt">${a.varianten.length + 1} Ausführungen</span>` : ""}
     </div>
+    ${a.hinweis ? `<p class="angebot-hinweis">${esc(a.hinweis)}</p>` : ""}
   </header>
   ${galerie}
-  <div class="angebot-beschreibung prose">${absaetze}</div>
+  ${beschreibung}
+  ${preisTabelle(a.preise, a.preishinweis)}
+  ${variantenBlock(a.varianten)}
+  ${datenBlock(a.daten)}
+  ${konditionsBlock(a, opt.konditionen)}
   ${anfrage}
 </article>`;
 }
