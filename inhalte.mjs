@@ -117,16 +117,11 @@ export const ANZEIGEN = {
   // ═══ Party & Feiern ═════════════════════════════════════════════════════
   "xxl-profi-zapfanlage-mieten-hochzeit-feier-party-geburtstag-3172364445": {
     titel: "Zapfanlage XXL, beleuchtet",
-    // Der Anzeigentext nennt 50 € fuer den ersten Tag, das Preisfeld 40 €.
-    // Robert hat am 31.07.2026 bestaetigt: 40 € stimmt, der Text ist veraltet.
-    // Korrigiert wird nur diese eine Zeile — die uebrige Staffel kommt weiter
-    // aus der Anzeige und folgt automatisch, wenn Robert sie dort aendert.
-    preisKorrektur: { "1. Tag": "40 €" },
-    offen:
-      "Der Anzeigentext bei Kleinanzeigen sagt weiterhin 50 € fuer den 1. Tag, die " +
-      "Homepage zeigt die bestaetigten 40 €. Bitte den Anzeigentext nachziehen. " +
-      "Und pruefen, ob die Staffel dazu passt: Wochenende 95 € und Woche 140 € " +
-      "waren auf 50 € am ersten Tag gerechnet.",
+    // Hier stand bis zum 31.07.2026 eine Preiskorrektur auf 40 €, weil der
+    // Anzeigentext noch 50 € fuer den ersten Tag nannte. Robert hat die Anzeige
+    // inzwischen selbst geaendert, damit ist die Korrektur nicht nur ueberfluessig,
+    // sondern schaedlich: Sie haette den Preis auf 40 € festgenagelt und jede
+    // kuenftige Aenderung von Robert stillschweigend ueberschrieben.
   },
   "profi-nebelmaschine-mieten-inkl-led-beleuchtung-party-hochze-3443702693": {
     titel: "Nebelmaschine mit LED-Beleuchtung",
@@ -150,9 +145,8 @@ export const ANZEIGEN = {
   "popkornmaschine-mieten-geburtstag-feier-rechnung-lieferservi-2847582358": {
     // "Popkorn" ist die Schreibweise der Anzeige; korrekt ist Popcorn.
     titel: "Popcornmaschine",
-    offen:
-      "Preisfeld der Anzeige sagt 40 €, der Anzeigentext 50 € pro Veranstaltung. " +
-      "Die Seite nimmt jetzt den Text. Bitte das Preisfeld bei Kleinanzeigen nachziehen.",
+    // Preisfeld und Anzeigentext widersprachen sich hier (40 € gegen 50 €).
+    // Robert hat beides am 31.07.2026 auf 45 € gebracht, der Widerspruch ist weg.
   },
   "profi-zuckerwattemaschine-mieten-mit-lieferservice-rechnung-2799383085": {
     titel: "Zuckerwattemaschine",
